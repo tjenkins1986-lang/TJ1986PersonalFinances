@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>21 Forth Cres — Financial Tracking &amp; Planning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #152029;
+    --ink-2: #1E2C38;
+    --ink-3: #263847;
+    --parchment: #F1E8D6;
+    --brass: #C9A227;
+    --brass-dim: #9A7D22;
+    --sage: #7C9473;
+    --clay: #A6462D;
+    --line: rgba(241,232,214,0.14);
+    --line-strong: rgba(241,232,214,0.28);
+    --text-hi: #F6F1E4;
+    --text-mid: rgba(246,241,228,0.68);
+    --text-low: rgba(246,241,228,0.42);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--ink);
+    color: var(--text-hi);
+    font-family: 'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 0 96px;
+  }
+
+  header.plaque{
+    padding: 56px 24px 40px;
+    max-width: 1080px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin-bottom: 18px;
+  }
+  h1.address{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(34px, 6vw, 58px);
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    line-height: 1.05;
+  }
+  .subtitle{ font-size: 14px; color: var(--text-mid); letter-spacing: 0.02em; }
+
+  .data-source{ max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  .data-source .card{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: var(--ink-2);
+    border: 1px dashed var(--line-strong);
+    border-radius: 4px;
+    padding: 14px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-low);
+  }
+  .data-source .card b{ color: var(--text-mid); font-weight: 500; }
+  .data-source .as-of{ color: var(--brass); }
+
+  main{ max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  section.widget{
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-top: 28px;
+    overflow: hidden;
+  }
+  .widget-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap: 16px;
+    padding: 22px 28px 18px;
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .widget-head .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-low);
+  }
+  .widget-head h2{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: 22px;
+    margin: 4px 0 0;
+  }
+
+  .tile{ padding: 22px 28px 24px; border-bottom: 1px solid var(--line); }
+  .tile:last-child{ border-bottom: none; }
+
+  .tile-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tile-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-low);
+  }
+  .tile-total{ font-family:'Fraunces', serif; font-weight: 500; font-size: 28px; }
+  .tile-total.assets{ color: var(--sage); }
+  .tile-total.liabilities{ color: var(--clay); }
+
+  .line-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 9px 0;
+    border-top: 1px dashed var(--line);
+    gap: 12px;
+  }
+  .line-item:first-of-type{ border-top: none; }
+  .line-item .item-label{ font-size: 13px; color: var(--text-mid); }
+  .line-item .item-value{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13.5px;
+    color: var(--text-hi);
+    white-space: nowrap;
+  }
+  .line-item.liability .item-value{ color: var(--clay); }
+  .line-item.equity .item-value{ color: var(--brass); font-weight: 500; }
+
+  .pensions{ display:grid; grid-template-columns: 1fr 1px 1fr; }
+  @media (max-width: 700px){ .pensions{ grid-template-columns: 1fr; } }
+  .pensions .divider{ background: var(--line); }
+  @media (max-width: 700px){ .pensions .divider{ height:1px; } }
+
+  .person{ padding: 22px 28px 24px; }
+  .person-name{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--text-hi);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 14px;
+  }
+  .pension-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding: 8px 0;
+    border-top: 1px dashed var(--line);
+    gap: 10px;
+  }
+  .pension-row:first-of-type{ border-top:none; }
+  .pension-row .plabel{ font-size: 12.5px; color: var(--text-mid); }
+  .pension-row .pamount{ font-family:'IBM Plex Mono', monospace; font-size: 13px; color: var(--text-hi); }
+  .pension-total{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line-strong);
+  }
+  .pension-total .plabel{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-low);
+  }
+  .pension-total .pval{ font-family:'IBM Plex Mono', monospace; font-size: 18px; color: var(--sage); }
+
+  .networth-strip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 20px;
+    padding: 26px 28px;
+    background: var(--ink-3);
+    border-top: 1px solid var(--line-strong);
+    flex-wrap: wrap;
+  }
+  .networth-strip .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-low);
+  }
+  .networth-strip .breakdown{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-low);
+    margin-top: 6px;
+  }
+  .networth-strip .breakdown b{ color: var(--text-mid); font-weight:500; }
+  .networth-strip .value{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(30px, 5vw, 44px);
+    color: var(--sage);
+  }
+
+  footer.note{
+    max-width: 1080px;
+    margin: 40px auto 0;
+    padding: 0 24px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-low);
+    line-height: 1.7;
+  }
+
+  .coming-next{
+    margin-top: 28px;
+    padding: 18px 28px;
+    border: 1px dashed var(--line-strong);
+    border-radius: 4px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-low);
+    letter-spacing: 0.02em;
+  }
+  .coming-next b{ color: var(--text-mid); }
+
+  /* ---------- Widget 03: story of the month ---------- */
+  .story-narrative{
+    font-size: 13.5px;
+    line-height: 1.8;
+    color: var(--text-mid);
+  }
+  .story-narrative p{ margin: 0 0 14px; }
+  .story-narrative p:last-child{ margin-bottom: 0; }
+  .story-narrative b{ color: var(--text-hi); font-weight: 500; }
+
+  .story-stats{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  @media (max-width: 760px){ .story-stats{ grid-template-columns: repeat(2, 1fr); } }
+  .story-stat{
+    background: var(--ink-2);
+    padding: 16px 18px;
+  }
+  .story-stat .s-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-low);
+    margin-bottom: 8px;
+  }
+  .story-stat .s-value{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--text-hi);
+  }
+  .story-stat .s-delta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    margin-top: 6px;
+  }
+  .story-stat .s-delta.over{ color: var(--clay); }
+  .story-stat .s-delta.under{ color: var(--sage); }
+  .story-stat .s-delta.flat{ color: var(--text-low); }
+
+  .actions-list{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .action-item{
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 0;
+    border-top: 1px dashed var(--line);
+  }
+  .action-item:first-child{ border-top: none; }
+  .action-check{
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding-top: 2px;
+    cursor: pointer;
+  }
+  .action-check input{
+    width: 17px;
+    height: 17px;
+    accent-color: var(--brass);
+    cursor: pointer;
+  }
+  .action-body{ flex: 1; min-width: 0; }
+  .action-text{
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+  .action-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-low);
+    margin-top: 6px;
+  }
+  .action-meta b{ color: var(--text-mid); font-weight: 500; }
+  .action-item.done .action-text{
+    color: var(--text-low);
+    text-decoration: line-through;
+    text-decoration-color: var(--line-strong);
+  }
+  .action-item.done .action-meta{ opacity: 0.6; }
+
+  /* ---------- Where We Spend: table ---------- */
+  .spend-note{
+    padding: 14px 28px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-low);
+    line-height: 1.6;
+  }
+  .table-scroll{
+    overflow-x: auto;
+    padding: 16px 28px 8px;
+  }
+  table.spend-table{
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 880px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+  }
+  .spend-table thead th{
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-low);
+    padding: 0 10px 10px;
+    border-bottom: 1px solid var(--line-strong);
+    white-space: nowrap;
+  }
+  .spend-table thead th.col-cat{ text-align: left; }
+  .spend-table thead th.col-avg{ color: var(--brass); }
+  .spend-table thead th.col-current{ color: var(--text-hi); }
+  .spend-table tbody td, .spend-table tfoot td{
+    padding: 8px 10px;
+    text-align: right;
+    border-bottom: 1px dashed var(--line);
+    white-space: nowrap;
+  }
+  .spend-table td.col-cat{
+    text-align: left;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text-mid);
+    position: sticky;
+    left: 0;
+    background: var(--ink-2);
+  }
+  .spend-table td.col-cat.cat-sub{
+    padding-left: 26px;
+    font-size: 12.5px;
+    color: var(--text-mid);
+  }
+  .spend-table tr.group-row td{
+    background: var(--ink-3);
+    border-top: 1px solid var(--line-strong);
+    border-bottom: 1px solid var(--line-strong);
+    font-weight: 500;
+    color: var(--text-hi);
+  }
+  .spend-table tr.group-row td.col-cat{
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    background: var(--ink-3);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .spend-table tr.group-row .group-note{
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 400;
+    font-size: 10.5px;
+    color: var(--text-low);
+    letter-spacing: 0;
+    white-space: normal;
+  }
+  .spend-table tfoot td.col-cat{ background: var(--ink-3); }
+  .spend-table td.cell-click{
+    color: var(--text-hi);
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.12s ease;
+  }
+  .spend-table td.cell-click:hover{ background: var(--ink-3); color: var(--brass); }
+  .spend-table td.col-avg{ color: var(--brass); }
+  .spend-table td.col-current{
+    color: var(--text-hi);
+    font-weight: 500;
+    background: rgba(201,162,39,0.06);
+  }
+  .spend-table td.col-current.cell-click:hover{ background: rgba(201,162,39,0.16); }
+  .spend-table td.col-delta.over{ color: var(--clay); }
+  .spend-table td.col-delta.under{ color: var(--sage); }
+  .spend-table td.col-delta{ font-size: 12px; }
+  .spend-table tfoot td{
+    border-bottom: none;
+    border-top: 1px solid var(--line-strong);
+    font-weight: 500;
+    color: var(--text-hi);
+  }
+  .spend-table tfoot td.col-cat{
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+  }
+
+  .spend-legend{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    padding: 4px 28px 22px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-low);
+  }
+  .spend-legend .dot{
+    display:inline-block;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .spend-legend .dot.cell{ background: var(--text-mid); }
+  .spend-legend .dot.over{ background: var(--clay); }
+  .spend-legend .dot.under{ background: var(--sage); }
+
+  /* ---------- Drill-down modal ---------- */
+  .modal-overlay{
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,15,20,0.72);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open{ display: flex; }
+  .modal-box{
+    background: var(--ink-2);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    width: min(520px, 100%);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .modal-head{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 22px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .modal-cat{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--text-hi);
+  }
+  .modal-month{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-low);
+    margin-top: 4px;
+  }
+  .modal-close{
+    background: none;
+    border: none;
+    color: var(--text-low);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+  .modal-close:hover{ color: var(--clay); }
+  .modal-list{
+    overflow-y: auto;
+    padding: 6px 22px;
+  }
+  .modal-row{
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px dashed var(--line);
+  }
+  .modal-row:first-child{ border-top: none; }
+  .modal-row .mdesc{ font-size: 12.5px; color: var(--text-mid); line-height: 1.4; }
+  .modal-row .mdate{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-low);
+    display:block;
+    margin-top: 2px;
+  }
+  .modal-row .mamt{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--text-hi);
+    white-space: nowrap;
+  }
+  .modal-empty{
+    padding: 24px 0;
+    text-align:center;
+    color: var(--text-low);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+  }
+  .modal-total{
+    display:flex;
+    justify-content: space-between;
+    padding: 16px 22px;
+    border-top: 1px solid var(--line-strong);
+    background: var(--ink-3);
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+  .modal-total b{ color: var(--sage); font-weight: 500; }
+  .tile-note{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-low);
+    max-width: 420px;
+    text-align: right;
+    line-height: 1.5;
+  }
+
+  /* ---------- Principles grid ---------- */
+  .principles-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  @media (max-width: 700px){ .principles-grid{ grid-template-columns: 1fr; } }
+  .principle-card{
+    background: var(--ink-2);
+    padding: 18px 20px;
+  }
+  .principle-card .p-label{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-low);
+    margin-bottom: 10px;
+  }
+  .principle-card .p-ratio{
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 30px;
+    color: var(--brass);
+    line-height: 1;
+  }
+  .principle-card .p-names{
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-top: 4px;
+  }
+  .principle-card .p-pct{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-hi);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+  }
+  .principle-card .p-basis{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-low);
+    margin-top: 6px;
+  }
+
+  /* ---------- Agreed approaches to money ---------- */
+  .approach-add{ margin-bottom: 4px; }
+  textarea.approach-input{
+    width: 100%;
+    min-height: 56px;
+    background: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    color: var(--text-mid);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 10px 12px;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  textarea.approach-input::placeholder{ color: var(--text-low); }
+  textarea.approach-input:focus{ outline: none; border-color: var(--brass-dim); }
+  .approach-add-row{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .approaches-list{
+    margin: 14px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .approach-item{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 12px 0;
+    border-top: 1px dashed var(--line);
+  }
+  .approach-item:first-child{ border-top: none; }
+  .approach-text{
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    flex: 1;
+    min-width: 0;
+    white-space: pre-wrap;
+  }
+  .approach-meta{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-low);
+    margin-top: 4px;
+  }
+  .approach-remove{
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    color: var(--text-low);
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 2px 0;
+  }
+  .approach-remove:hover{ color: var(--clay); }
+
+  /* ---------- Widget 05: forecast table ---------- */
+  table.forecast-table{
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 600px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+  }
+  .forecast-table thead th{
+    text-align: right;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-low);
+    padding: 0 10px 10px;
+    border-bottom: 1px solid var(--line-strong);
+    white-space: nowrap;
+  }
+  .forecast-table thead th.col-cat{ text-align: left; }
+  .forecast-table thead th.col-tom{ color: var(--sage); }
+  .forecast-table thead th.col-hannah{ color: var(--brass); }
+  .forecast-table tbody td, .forecast-table tfoot td{
+    padding: 10px 10px;
+    text-align: right;
+    border-bottom: 1px dashed var(--line);
+    white-space: nowrap;
+  }
+  .forecast-table td.col-cat{
+    text-align: left;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text-mid);
+  }
+  .forecast-table td.col-cat .row-sub{
+    display:block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--text-low);
+    margin-top: 2px;
+  }
+  .forecast-table td.col-split{ color: var(--text-low); font-size: 11.5px; }
+  .forecast-table td.col-tom{ color: var(--sage); }
+  .forecast-table td.col-hannah{ color: var(--brass); }
+  .forecast-table td.needs-input{ color: var(--clay); font-style: italic; }
+  .forecast-table tfoot td{
+    border-bottom: none;
+    border-top: 1px solid var(--line-strong);
+    font-weight: 500;
+    color: var(--text-hi);
+  }
+  .forecast-table tfoot td.col-cat{
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+  }
+
+  .forecast-strip{
+    display:flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 26px 28px;
+    background: var(--ink-3);
+    border-top: 1px solid var(--line-strong);
+    flex-wrap: wrap;
+  }
+  .forecast-person{ flex: 1; min-width: 180px; }
+  .forecast-person .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-low);
+  }
+  .forecast-person .value{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(26px, 4vw, 36px);
+    margin-top: 4px;
+  }
+  .forecast-person.tom .value{ color: var(--sage); }
+  .forecast-person.hannah .value{ color: var(--brass); }
+  .forecast-person .household{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-low);
+    margin-top: 6px;
+  }
+
+  /* ---------- Widget 06: savings goals ---------- */
+  .goal-card{
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--line);
+  }
+  .goal-card:last-child{ border-bottom: none; }
+  .goal-head{
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .goal-name{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--text-hi);
+  }
+  .goal-purpose{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: var(--text-low);
+    text-transform: uppercase;
+  }
+  .goal-amounts{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-mid);
+    margin-bottom: 10px;
+  }
+  .goal-amounts b{ color: var(--brass); font-weight: 500; }
+
+  .goal-bar-track{
+    height: 8px;
+    border-radius: 4px;
+    background: var(--ink-3);
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .goal-bar-fill{
+    height: 100%;
+    background: linear-gradient(90deg, var(--sage), var(--brass));
+    border-radius: 4px;
+  }
+
+  .goal-meta{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-low);
+  }
+  .goal-meta b{ color: var(--text-mid); font-weight: 500; }
+  .goal-meta .split{ color: var(--text-mid); }
+  .goal-meta .split .tom{ color: var(--sage); }
+  .goal-meta .split .hannah{ color: var(--brass); }
+  .goal-flag{
+    color: var(--clay);
+  }
+
+  .savings-goals-total{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 28px;
+    background: var(--ink-3);
+    border-top: 1px solid var(--line-strong);
+    flex-wrap: wrap;
+  }
+  .savings-goals-total .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-low);
+  }
+  .savings-goals-total .breakdown{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-low);
+    margin-top: 6px;
+  }
+  .savings-goals-total .breakdown b{ color: var(--text-mid); font-weight: 500; }
+  .savings-goals-total .value{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(24px, 4vw, 34px);
+    color: var(--brass);
+  }
+
+  /* ---------- Widget 09: JSON import / cloud sync ---------- */
+  .json-import-body{ padding: 22px 28px 26px; }
+  textarea.json-import-box{
+    width: 100%;
+    min-height: 180px;
+    background: var(--ink);
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    color: var(--text-mid);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.6;
+    padding: 14px 16px;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  textarea.json-import-box::placeholder{ color: var(--text-low); }
+  textarea.json-import-box:focus{ outline: none; border-color: var(--brass-dim); }
+  .json-import-controls{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .json-import-btn{
+    background: var(--brass);
+    color: var(--ink);
+    border: none;
+    border-radius: 3px;
+    padding: 10px 20px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .json-import-btn:hover{ background: var(--brass-dim); }
+  .json-import-btn.secondary{
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--text-mid);
+  }
+  .json-import-btn.secondary:hover{ background: var(--ink-3); color: var(--text-hi); }
+  .json-import-status{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+  }
+  .json-import-status.success{ color: var(--sage); }
+  .json-import-status.error{ color: var(--clay); }
+
+  /* ---------- Auth gate ---------- */
+  #appContent{ display: none; }
+  .auth-gate{
+    position: fixed;
+    inset: 0;
+    background: var(--ink);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .auth-box{
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    background: var(--ink-2);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    padding: 44px 34px;
+  }
+  .auth-box .eyebrow{ margin-bottom: 14px; }
+  .auth-box h1.address{ font-size: 30px; }
+  .auth-status{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    margin: 18px 0 22px;
+    min-height: 1em;
+  }
+  .auth-warning{
+    background: rgba(166,70,45,0.12);
+    border: 1px solid var(--clay);
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin: -6px 0 20px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    color: var(--text-hi);
+    line-height: 1.6;
+    text-align: left;
+  }
+  .auth-warning b{ color: var(--clay); }
+  .google-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    color: #1f1f1f;
+    border: none;
+    border-radius: 4px;
+    padding: 11px 22px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .google-btn:hover{ background: #f2f2f2; }
+  .auth-signout{
+    display: inline-block;
+    margin-top: 18px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-low);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .cloud-status{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--text-low);
+    text-align: center;
+    padding: 12px 24px 0;
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= AUTH GATE ================= -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="eyebrow">Household Ledger</div>
+    <h1 class="address">21 Forth Cres</h1>
+    <div class="subtitle">Financial Tracking &amp; Planning</div>
+    <div class="auth-status" id="authGateStatus">Checking sign-in status…</div>
+    <div class="auth-warning" id="inAppBrowserWarning" style="display:none;"></div>
+    <button type="button" class="google-btn" id="signInBtn" style="display:none;">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+      Sign in with Google
+    </button>
+    <button type="button" class="auth-signout" id="signOutBtn" style="display:none;">Sign out</button>
+  </div>
+</div>
+
+<script>
+  // Runs immediately, independent of Firebase — Google Sign-In needs full
+  // browser storage/cookie access, which in-app browsers (WhatsApp,
+  // Instagram, Messenger, etc.) commonly block or partition, producing a
+  // cryptic "missing initial state / sessionStorage inaccessible" error.
+  // Catch the common ones up front with a plain-English fix instead, and
+  // do it before the Firebase SDK even attempts to load — no reason a
+  // slow or failed CDN fetch should delay this warning.
+  (function(){
+    var IN_APP_BROWSER_HINTS = ['WhatsApp', 'FBAN', 'FBAV', 'FB_IAB', 'Instagram', 'Line/', 'MicroMessenger', 'TikTok', 'Twitter'];
+    var ua = navigator.userAgent || '';
+    if(IN_APP_BROWSER_HINTS.some(function(hint){ return ua.indexOf(hint) !== -1; })){
+      var el = document.getElementById('inAppBrowserWarning');
+      el.innerHTML = '<b>Heads up:</b> you appear to have opened this link inside another app\'s built-in browser (e.g. WhatsApp, Instagram). Google Sign-In usually fails there. Tap the share icon in this browser bar and choose <b>Open in Safari</b> (or Chrome), or copy this link and paste it directly into your browser.';
+      el.style.display = 'block';
+    }
+  })();
+</script>
+
+<div id="appContent">
+
+<header class="plaque">
+  <div class="eyebrow">Household Ledger</div>
+  <h1 class="address">21 Forth Cres</h1>
+  <div class="subtitle">Financial Tracking &amp; Planning</div>
+</header>
+
+<div class="data-source">
+  <div class="card">
+    <span><b>Data source:</b> Loaded live from your household's private cloud database — nothing on this page is baked into the code.</span>
+    <span class="as-of" id="asOfDate"></span>
+  </div>
+</div>
+<div class="cloud-status" id="cloudSyncStatus"></div>
+
+<main>
+
+  <!-- ================= WIDGET 01: HOUSEHOLD PRINCIPLES ================= -->
+  <section class="widget" id="widget-principles" data-component="household-principles">
+    <div class="widget-head">
+      <div>
+        <div class="tag">Widget 01 · Principles</div>
+        <h2>Household Principles &amp; Contributions</h2>
+      </div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head">
+        <div class="tile-label">Agreed Contribution Principles</div>
+      </div>
+      <div class="principles-grid" id="principlesGrid"></div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head">
+        <div class="tile-label">Agreed Approaches to Money</div>
+        <div class="tile-note">Anything you've agreed beyond the three principles above — write it down here so it's visible to both of you.</div>
+      </div>
+      <div class="approach-add">
+        <textarea id="approachInput" class="approach-input" rows="2" placeholder="e.g. We'll each keep back £50/month for personal spending before the joint split..."></textarea>
+        <div class="approach-add-row">
+          <button type="button" id="approachAddBtn" class="json-import-btn">Add</button>
+          <span id="approachStatus" class="json-import-status"></span>
+        </div>
+      </div>
+      <ul class="approaches-list" id="approachesList"></ul>
+    </div>
+  </section>
+
+  <!-- ================= WIDGET 02: NET WORTH SUMMARY ================= -->
+  <section class="widget" id="widget-networth" data-component="net-worth-summary">
+    <div class="widget-head">
+      <div>
+        <div class="tag">Widget 02 · Position</div>
+        <h2>Net Worth Summary</h2>
+      </div>
+    </div>
+
+    <!-- Assets tile -->
+    <div class="tile" id="assetsTile"></div>
+
+    <!-- Liabilities / property tile -->
+    <div class="tile" id="liabilitiesTile"></div>
+
+    <div class="widget-head" style="border-top:1px solid var(--line); border-bottom:none;">
+      <div>
+        <div class="tag">In the spirit of transparency</div>
+        <h2 style="font-size:18px;">Pensions — Both of Us</h2>
+      </div>
+    </div>
+
+    <div class="pensions" id="pensionsPanel"></div>
+
+    <div class="networth-strip">
+      <div>
+        <div class="label">Total Net Worth</div>
+        <div class="breakdown" id="breakdown"></div>
+      </div>
+      <div class="value" id="netWorthValue">£0</div>
+    </div>
+  </section>
+
+  <!-- ================= WIDGET 03: STORY OF THE MONTH ================= -->
+  <section class="widget" id="widget-story" data-component="story-of-the-month">
+    <div class="widget-head">
+      <div>
+        <div class="tag">Widget 03 · Narrative</div>
+        <h2>Story of the Month</h2>
+      </div>
+      <div class="as-of" id="storyAsOf"></div>
+    </div>
+
+    <div class="spend-note" id="storyIntro"></div>
+
+    <div class="tile">
+      <div class="tile-head">
+        <div class="tile-label">Summary</div>
+      </div>
+      <div class="story-narrative" id="storyNarrative"></div>
+    </div>
+
+    <div class="tile">
+      <div class="tile-head">
+        <div class="tile-label">Key Numbers</div>
+      </div>
+      <div class="story-stats" id="storyStats"></div>
+    </div>
+  </section>
+
+  <!-- ================= WIDGET 4: WHERE WE SPEND ================= -->
+  <section class="widget" id="widget-spend" data-component="where-we-spend">
+    <div class="widget-head">
+      <div>
+        <div class="tag">Widget 04 · Spend</div>
+        <h2>Where We Spend</h2>
+      </div>
+      <div class="as-of" id="spendAsOf"></div>
+    </div>
+
+    <div class="spend-note" id="spendNote"></div>
+
+    <div class="table-scroll">
+      <table class="spend-table" id="spendTable">
+        <thead id="spendThead"></thead>
+        <tbody id="spendTbody"></tbody>
+        <tfoot id="spendTfoot"></tfoot>
+      </table>
+    </div>
+
+    <div class="spend-legend">
+      <span><i class="dot cell"></i> click a month figure to see the transactions behind it</span>
+      <span><i class="dot over"></i> current month running above 6-month average</span>
+      <span><i class="dot under"></i> current month running below 6-month average</span>
+    </div>
+  </section>
+
+  <!-- ================= WIDGET 5: WHAT WE CONTRIBUTE ================= -->
+  <section class="widget" id="widget-contribute" data-component="what-we-contribute">
+    <div class="widget-head">
+      <div>
+        <div class="tag">Widget 05 · Contributions</div>
+        <h2>What We Contribute</h2>
+      </div>
+      <div class="as-of" id="contribAsOf"></div>
+    </div>
+
+    <div class="spend-note" id="contribNote"></div>
+
+    <div class="table-scroll">
+      <table class="spend-table" id="contribTable">
+        <thead id="contribThead"></thead>
+        <tbody id="contribTbody"></tbody>
+        <tfoot id="contribTfoot"></tfoot>
+      </table>
+    </div>
+
+    <div class="spend-legend">
+      <span><i class="dot cell"></i> click a month figure to see the individual payments behind it</span>
+      <span><i class="dot over"></i> running above the trailing average</span>
+      <span><i class="dot under"></i> running below the trailing average</span>
+    </div>
+  </section>
+
+  <!-- ================= WIDGET 6: SAVINGS GOALS ================= -->
+  <section class="widget" id="widget-savings-goals" data-component="savings-goals">
+    <div class="widget-head">
+      <div>
+        <div class="tag">Widget 06 · Savings</div>
+        <h2>Savings Goals</h2>
+      </div>
+      <div class="as-of" id="savingsGoalsAsOf"></div>
+    </div>
+
+    <div class="spend-note" id="savingsGoalsNote"></div>
+
+    <div id="savingsGoalsList"></div>
+
+    <div class="savings-goals-total" id="savingsGoalsTotal"></div>
+  </section>
+
+  <!-- ================= WIDGET 7: NEXT MONTH'S CONTRIBUTION ================= -->
+  <section class="widget" id="widget-forecast" data-component="next-month-contribution">
+    <div class="widget-head">
+      <div>
+        <div class="tag">Widget 07 · Forecast</div>
+        <h2>Next Month's Contribution</h2>
+      </div>
+      <div class="as-of" id="forecastAsOf"></div>
+    </div>
+
+    <div class="spend-note" id="forecastNote"></div>
+
+    <div class="table-scroll">
+      <table class="forecast-table" id="forecastTable">
+        <thead>
+          <tr>
+            <th class="col-cat">Component</th>
+            <th>Basis</th>
+            <th>Split</th>
+            <th class="col-tom">Tom</th>
+            <th class="col-hannah">Hannah</th>
+          </tr>
+        </thead>
+        <tbody id="forecastTbody"></tbody>
+        <tfoot id="forecastTfoot"></tfoot>
+      </table>
+    </div>
+
+    <div class="forecast-strip" id="forecastStrip"></div>
+  </section>
+
+  <!-- ================= WIDGET 8: ROLLING ACTIONS ================= -->
+  <section class="widget" id="widget-actions" data-component="rolling-actions">
+    <div class="widget-head">
+      <div>
+        <div class="tag">Widget 08 · Actions</div>
+        <h2>Rolling Actions</h2>
+      </div>
+      <div class="as-of" id="actionsAsOf"></div>
+    </div>
+
+    <div class="spend-note" id="actionsIntro"></div>
+
+    <div class="tile">
+      <ul class="actions-list" id="rollingActionsList"></ul>
+      <span id="actionsSyncStatus" class="json-import-status" style="display:block; margin-top:10px;"></span>
+    </div>
+  </section>
+
+  <!-- ================= WIDGET 9: MONTHLY DATA UPDATE ================= -->
+  <section class="widget" id="widget-json-import" data-component="monthly-data-update">
+    <div class="widget-head">
+      <div>
+        <div class="tag">Widget 09 · Update</div>
+        <h2>Monthly Data Update</h2>
+      </div>
+    </div>
+
+    <div class="spend-note" id="jsonImportNote"></div>
+
+    <div class="json-import-body">
+      <textarea id="jsonImportBox" class="json-import-box" spellcheck="false" placeholder='Paste a full household snapshot here, e.g.:
+{
+  "household": { "contributorAName": "Person A", "contributorBName": "Person B" },
+  "principles": [...],
+  "netWorth": { "asOf": "2026-09-24", "assets": [...], "property": {...}, "pensions": {...} },
+  "moneyApproaches": [ { "text": "...", "addedDate": "2026-09-24" } ],
+  "spend": { "months": [...], "categories": [...], "monthly": {...}, "transactions": {...} },
+  "contrib": { "months": [...], "rows": {...}, "excludeMonths": [...] },
+  "savingsGoals": [...],
+  "nextMonthConfig": { "additionalItems": [...] },
+  "story": { "month": "2026-09", "narrative": ["...", "..."] },
+  "actions": [ { "text": "New action raised this month", "raisedMonth": "2026-09" } ],
+  "meta": { "currentAsOfDay": 24 }
+}
+
+Only the keys you include get replaced — anything omitted is left as-is.'></textarea>
+      <div class="json-import-controls">
+        <button type="button" id="jsonImportBtn" class="json-import-btn">Apply Locally (preview)</button>
+        <button type="button" id="cloudSaveBtn" class="json-import-btn">Save to Cloud</button>
+        <button type="button" id="copyStateBtn" class="json-import-btn secondary">Copy Current Data as JSON</button>
+        <span id="jsonImportStatus" class="json-import-status"></span>
+      </div>
+    </div>
+  </section>
+
+  <div class="coming-next">
+    <b>Next widgets (planned):</b> Debt Payoff (Car Finance / Mortgage) · Cash Flow Forecast beyond next month.
+    Each will live in its own <code>&lt;section class="widget"&gt;</code> block reading from the same cloud snapshot.
+  </div>
+
+</main>
+
+<!-- ================= TRANSACTION DRILL-DOWN MODAL ================= -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-cat" id="modalCat"></div>
+        <div class="modal-month" id="modalMonth"></div>
+      </div>
+      <button class="modal-close" id="modalClose" type="button">✕</button>
+    </div>
+    <div class="modal-list" id="modalList"></div>
+    <div class="modal-total" id="modalTotal"></div>
+  </div>
+</div>
+
+<footer class="note">
+  This page renders entirely from your household's private Firestore database — no financial figures are stored in this
+  file or in the GitHub repository. See <code>README.md</code> for how the Google sign-in and cloud storage are wired up,
+  and <code>firestore.rules</code> for the security rules that actually restrict access.
+</footer>
+
+</div><!-- #appContent -->
+
+<script>
+/* =========================================================================
+   APP STATE
+   Nothing below has real household figures baked in — this is deliberate:
+   the repository this file lives in is public, so no real balances,
+   transactions, or targets may ever be committed here. Every widget reads
+   from STATE, which starts empty and gets filled in one of two ways:
+     1) Automatically, from Firestore, once you sign in with an authorized
+        Google account (see the module script at the bottom of this file).
+     2) Manually, by pasting a JSON snapshot into Widget 09 and clicking
+        "Apply Locally" to preview it, then "Save to Cloud" to persist it.
+   ========================================================================= */
+let STATE = {
+  household: { contributorAName: 'Person A', contributorBName: 'Person B' },
+  principles: [],
+  netWorth: {
+    asOf: null,
+    assets: [],
+    property: { marketValue: 0, mortgageBalance: 0 },
+    pensions: {
+      personA: { name: '', pots: [] },
+      personB: { name: '', pots: [] }
+    }
+  },
+  moneyApproaches: [],
+  spend: { months: [], categories: [], monthly: {}, transactions: {} },
+  contrib: { months: [], rows: {}, excludeMonths: [] },
+  savingsGoals: [],
+  nextMonthConfig: { additionalItems: [] },
+  story: { month: null, narrative: [] },
+  actions: [],
+  meta: { currentAsOfDay: 1 }
+};
+
+/* =========================================================================
+   Spend grouping — structural labels only, no personal data, safe to keep
+   in code. Every category in STATE.spend.categories should appear in
+   exactly one group below once real data is loaded. Move a category
+   between groups here as your sense of what's "budget-able" vs a one-off
+   vs unclear evolves — nothing else needs to change.
+   ========================================================================= */
+const SPEND_GROUPS = [
+  {
+    id: 'mortgage',
+    label: 'Mortgage',
+    note: 'Split 50:50 per household principle — pulled out of the shared budget pool below so it isn\'t counted under the budgetary split, and so Widget 07 can gauge it separately without double-counting.',
+    categories: [
+      'Mortgage/Loan'
+    ]
+  },
+  {
+    id: 'ongoing',
+    label: 'Ongoing Monthly — Budget-able',
+    note: 'Regular, expected spend — split per household principle. This is the figure Widget 07 uses as its "Ongoing Monthly Budget" gauge for next month.',
+    categories: [
+      'Car Finance','Council Tax','Utilities','TV/Subscriptions',
+      'Insurance','Bank Fees','Groceries','Fuel/Transport','Dining Out/Takeaway',
+      "Kids' Activities",'Retail/Shopping'
+    ]
+  },
+  {
+    id: 'oneoff',
+    label: 'One-Offs',
+    note: 'Irregular by nature — large or occasional spends that skew a monthly average rather than define it.',
+    categories: [
+      'Household Maintenance & Contractors','Travel/Trips','Entertainment & Family Activities'
+    ]
+  },
+  {
+    id: 'review',
+    label: 'Needs Further Analysis',
+    note: 'Unclear or unitemised at the point of spend — worth talking through together before categorising further.',
+    categories: [
+      'Cash Withdrawals','Personal Transfer – Discretionary'
+    ]
+  }
+];
+
+/* =========================================================================
+   HELPERS
+   ========================================================================= */
+const MONTH_SHORT = {"01":"Jan","02":"Feb","03":"Mar","04":"Apr","05":"May","06":"Jun","07":"Jul","08":"Aug","09":"Sep","10":"Oct","11":"Nov","12":"Dec"};
+const MONTH_LONG = {"01":"January","02":"February","03":"March","04":"April","05":"May","06":"June","07":"July","08":"August","09":"September","10":"October","11":"November","12":"December"};
+
+function monthShort(m){ return m ? MONTH_SHORT[m.slice(5,7)] : '—'; }
+function monthLong(m){ return m ? (MONTH_LONG[m.slice(5,7)] + " " + m.slice(0,4)) : 'No data yet'; }
+
+const gbp = (n) => {
+  n = Number(n) || 0;
+  const sign = n < 0 ? "−" : "";
+  return sign + "£" + Math.abs(n).toLocaleString("en-GB", {minimumFractionDigits:0, maximumFractionDigits:0});
+};
+function sum(list){ return (list||[]).reduce((a,b)=>a+Number(b.amount||0),0); }
+function pensionTotal(person){ return sum(person && person.pots); }
+function escapeAttr(s){ return String(s).replace(/"/g,'&quot;'); }
+function escapeHtml(s){ return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]); }
+function formatDate(iso){
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+function splitAmount(amount, ratioA, ratioB){
+  const totalRatio = ratioA + ratioB;
+  if(totalRatio === 0) return { a: 0, b: 0 };
+  return { a: amount * ratioA / totalRatio, b: amount * ratioB / totalRatio };
+}
+function nextMonthOf(monthStr){
+  if(!monthStr) return null;
+  const [y, m] = monthStr.split('-').map(Number);
+  const nm = m === 12 ? 1 : m + 1;
+  const ny = m === 12 ? y + 1 : y;
+  return ny + '-' + String(nm).padStart(2,'0');
+}
+function monthsOpen(raisedMonth, asOfMonth){
+  if(!raisedMonth || !asOfMonth) return 0;
+  const [ry, rm] = raisedMonth.split('-').map(Number);
+  const [ay, am] = asOfMonth.split('-').map(Number);
+  return Math.max(0, (ay - ry) * 12 + (am - rm));
+}
+function principleFor(label){
+  return (STATE.principles || []).find(p => p.label === label) || { label, ratioA: 1, ratioB: 1, basis: 'not set yet' };
+}
+
+/* =========================================================================
+   Derived values — recomputed from STATE at the start of every render pass.
+   ========================================================================= */
+let SPEND_MONTHS = [], CURRENT_MONTH = null, TRAILING_MONTHS = [], CURRENT_AS_OF_DAY = 1;
+let CONTRIB_MONTHS = [], CONTRIB_CURRENT_MONTH = null, CONTRIB_TRAILING_MONTHS = [], CONTRIB_EXCLUDE_MONTHS = [];
+
+/* =========================================================================
+   WIDGET 02: Net worth
+   ========================================================================= */
+function renderAssetsTile(){
+  const nw = STATE.netWorth;
+  const total = sum(nw.assets);
+  const el = document.getElementById('assetsTile');
+  let html = `
+    <div class="tile-head">
+      <div class="tile-label">Total Assets</div>
+      <div class="tile-total assets">${gbp(total)}</div>
+    </div>`;
+  (nw.assets || []).forEach(item => {
+    html += `
+      <div class="line-item">
+        <div class="item-label">${item.label}</div>
+        <div class="item-value">${gbp(item.amount)}</div>
+      </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderLiabilitiesTile(){
+  const p = STATE.netWorth.property;
+  const equity = p.marketValue - p.mortgageBalance;
+  const el = document.getElementById('liabilitiesTile');
+  el.innerHTML = `
+    <div class="tile-head">
+      <div class="tile-label">Primary Liabilities</div>
+      <div class="tile-total liabilities">${gbp(p.mortgageBalance)}</div>
+    </div>
+    <div class="line-item liability">
+      <div class="item-label">Mortgage — Total Balance</div>
+      <div class="item-value">${gbp(p.mortgageBalance)}</div>
+    </div>
+    <div class="line-item">
+      <div class="item-label">Property Value (est.)</div>
+      <div class="item-value">${gbp(p.marketValue)}</div>
+    </div>
+    <div class="line-item equity">
+      <div class="item-label">Equity</div>
+      <div class="item-value">${gbp(equity)}</div>
+    </div>
+  `;
+}
+
+function buildPersonHTML(person){
+  let rows = "";
+  (person.pots || []).forEach(pot => {
+    rows += `
+      <div class="pension-row">
+        <div class="plabel">${pot.label}</div>
+        <div class="pamount">${gbp(pot.amount)}</div>
+      </div>`;
+  });
+  return `
+    <div class="person">
+      <div class="person-name">${person.name || '—'}</div>
+      ${rows}
+      <div class="pension-total">
+        <div class="plabel">Total</div>
+        <div class="pval">${gbp(pensionTotal(person))}</div>
+      </div>
+    </div>`;
+}
+
+function renderPensions(){
+  const nw = STATE.netWorth;
+  document.getElementById('pensionsPanel').innerHTML =
+    buildPersonHTML(nw.pensions.personA) + `<div class="divider"></div>` + buildPersonHTML(nw.pensions.personB);
+}
+
+function renderNetWorth(){
+  const nw = STATE.netWorth;
+  const assets = sum(nw.assets);
+  const equity = nw.property.marketValue - nw.property.mortgageBalance;
+  const pensions = pensionTotal(nw.pensions.personA) + pensionTotal(nw.pensions.personB);
+  const total = assets + equity + pensions;
+
+  document.getElementById('netWorthValue').textContent = gbp(total);
+  document.getElementById('breakdown').innerHTML =
+    `Assets <b>${gbp(assets)}</b> · Property Equity <b>${gbp(equity)}</b> · Pensions <b>${gbp(pensions)}</b>`;
+  document.getElementById('asOfDate').textContent = nw.asOf
+    ? ('Snapshot as of ' + new Date(nw.asOf).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }))
+    : 'No snapshot loaded yet';
+}
+
+function renderAll(){
+  renderAssetsTile();
+  renderLiabilitiesTile();
+  renderPensions();
+  renderNetWorth();
+}
+
+/* =========================================================================
+   WIDGET 01: Principles & agreed approaches to money
+   ========================================================================= */
+function renderPrinciples(){
+  const el = document.getElementById('principlesGrid');
+  const a = STATE.household.contributorAName, b = STATE.household.contributorBName;
+  el.innerHTML = (STATE.principles || []).map(p => {
+    const totalRatio = p.ratioA + p.ratioB;
+    const pctA = totalRatio ? (p.ratioA / totalRatio * 100).toFixed(1) : '–';
+    const pctB = totalRatio ? (p.ratioB / totalRatio * 100).toFixed(1) : '–';
+    return `
+      <div class="principle-card">
+        <div class="p-label">${p.label}</div>
+        <div class="p-ratio">${p.ratioA} : ${p.ratioB}</div>
+        <div class="p-names">${a} : ${b}</div>
+        <div class="p-pct">${a} ${pctA}% · ${b} ${pctB}%</div>
+        <div class="p-basis">${p.basis}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderApproaches(){
+  const list = STATE.moneyApproaches || [];
+  const el = document.getElementById('approachesList');
+  el.innerHTML = list.length === 0
+    ? `<li style="color:var(--text-low); font-size:13px; padding:12px 0;">Nothing added yet.</li>`
+    : list.map((item, i) => `
+      <li class="approach-item">
+        <div>
+          <div class="approach-text">${escapeHtml(item.text)}</div>
+          ${item.addedDate ? `<div class="approach-meta">Added ${formatDate(item.addedDate)}</div>` : ''}
+        </div>
+        <button type="button" class="approach-remove" data-idx="${i}">Remove</button>
+      </li>`).join('');
+
+  el.querySelectorAll('.approach-remove').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      STATE.moneyApproaches.splice(Number(btn.dataset.idx), 1);
+      renderApproaches();
+      await persistApproaches();
+    });
+  });
+}
+
+async function persistApproaches(){
+  const statusEl = document.getElementById('approachStatus');
+  if(typeof window.__saveStateToCloud !== 'function'){
+    statusEl.textContent = 'Kept in this browser only — cloud storage isn\'t connected yet.';
+    statusEl.className = 'json-import-status';
+    return;
+  }
+  statusEl.textContent = 'Saving…';
+  statusEl.className = 'json-import-status';
+  try {
+    await window.__saveStateToCloud(STATE);
+    statusEl.textContent = 'Saved — visible to both of you now.';
+    statusEl.className = 'json-import-status success';
+  } catch(e){
+    statusEl.textContent = 'Save failed: ' + e.message;
+    statusEl.className = 'json-import-status error';
+  }
+}
+
+async function addApproach(){
+  const input = document.getElementById('approachInput');
+  const text = input.value.trim();
+  if(!text) return;
+  STATE.moneyApproaches.push({ text, addedDate: new Date().toISOString().slice(0,10) });
+  input.value = '';
+  renderApproaches();
+  await persistApproaches();
+}
+
+document.getElementById('approachAddBtn').addEventListener('click', addApproach);
+
+/* =========================================================================
+   WIDGET 04: Where We Spend
+   ========================================================================= */
+function catMonthly(cat, m){ return Number((STATE.spend.monthly[cat] && STATE.spend.monthly[cat][m]) || 0); }
+function rollingAvg(cat){
+  if(TRAILING_MONTHS.length === 0) return 0;
+  const total = TRAILING_MONTHS.reduce((a,m) => a + catMonthly(cat,m), 0);
+  return total / TRAILING_MONTHS.length;
+}
+
+function renderSpendTable(){
+  document.getElementById('spendAsOf').textContent = CURRENT_MONTH ? ('Snapshot as of ' + CURRENT_AS_OF_DAY + ' ' + monthLong(CURRENT_MONTH)) : '';
+  document.getElementById('spendNote').innerHTML = SPEND_MONTHS.length
+    ? (`6-month rolling average is calculated over <b style="color:var(--text-mid)">${monthShort(TRAILING_MONTHS[0])}–${monthShort(TRAILING_MONTHS[TRAILING_MONTHS.length-1])}</b>. ` +
+       `<b style="color:var(--text-mid)">${monthLong(CURRENT_MONTH)}</b> is the live month, partial to the ${CURRENT_AS_OF_DAY}${CURRENT_AS_OF_DAY===24?'th':'th'} — compared against that average, not a full month.`)
+    : 'No spend data yet — sign in and load a monthly snapshot via Widget 09 below.';
+
+  let headHtml = '<tr><th class="col-cat">Category</th>';
+  TRAILING_MONTHS.forEach(m => { headHtml += `<th>${monthShort(m)}</th>`; });
+  headHtml += `<th class="col-avg">6-Mo Avg</th>`;
+  headHtml += `<th class="col-current">${monthShort(CURRENT_MONTH)}${CURRENT_MONTH ? ' (to '+CURRENT_AS_OF_DAY+'th)' : ''}</th>`;
+  headHtml += `<th>Δ vs Avg</th></tr>`;
+  document.getElementById('spendThead').innerHTML = headHtml;
+
+  let bodyHtml = '';
+  const columnTotals = {};
+  TRAILING_MONTHS.forEach(m => columnTotals[m] = 0);
+  let avgTotal = 0, currentTotal = 0;
+
+  SPEND_GROUPS.forEach(group => {
+    let groupAvg = 0, groupCurrent = 0;
+    const groupColumnTotals = {};
+    TRAILING_MONTHS.forEach(m => groupColumnTotals[m] = 0);
+
+    group.categories.forEach(cat => {
+      groupAvg += rollingAvg(cat);
+      groupCurrent += catMonthly(cat, CURRENT_MONTH);
+      TRAILING_MONTHS.forEach(m => { groupColumnTotals[m] += catMonthly(cat, m); });
+    });
+
+    const groupDelta = groupCurrent - groupAvg;
+    const groupDeltaClass = groupDelta > 0 ? 'over' : (groupDelta < 0 ? 'under' : '');
+    const groupArrow = groupDelta > 0 ? '▲' : (groupDelta < 0 ? '▼' : '–');
+    const groupDeltaPct = groupAvg !== 0 ? (groupDelta/groupAvg*100) : null;
+
+    bodyHtml += `<tr class="group-row"><td class="col-cat">${group.label}<span class="group-note">${group.note}</span></td>`;
+    TRAILING_MONTHS.forEach(m => { bodyHtml += `<td>${gbp(groupColumnTotals[m])}</td>`; });
+    bodyHtml += `<td class="col-avg">${gbp(groupAvg)}</td>`;
+    bodyHtml += `<td class="col-current">${gbp(groupCurrent)}</td>`;
+    bodyHtml += `<td class="col-delta ${groupDeltaClass}">${groupDelta===0?'–':groupArrow+' '+gbp(Math.abs(groupDelta))}${groupDeltaPct!==null && groupDelta!==0 ? ' ('+(groupDelta>0?'+':'−')+Math.abs(groupDeltaPct).toFixed(0)+'%)' : ''}</td>`;
+    bodyHtml += `</tr>`;
+
+    group.categories.forEach(cat => {
+      const avg = rollingAvg(cat);
+      const current = catMonthly(cat, CURRENT_MONTH);
+      const delta = current - avg;
+      const deltaPct = avg !== 0 ? (delta/avg*100) : null;
+      const deltaClass = delta > 0 ? 'over' : (delta < 0 ? 'under' : '');
+      const arrow = delta > 0 ? '▲' : (delta < 0 ? '▼' : '–');
+
+      avgTotal += avg;
+      currentTotal += current;
+
+      bodyHtml += `<tr><td class="col-cat cat-sub">${cat}</td>`;
+      TRAILING_MONTHS.forEach(m => {
+        const v = catMonthly(cat, m);
+        columnTotals[m] += v;
+        bodyHtml += `<td class="cell-click" data-cat="${escapeAttr(cat)}" data-month="${m}">${gbp(v)}</td>`;
+      });
+      bodyHtml += `<td class="col-avg">${gbp(avg)}</td>`;
+      bodyHtml += `<td class="col-current cell-click" data-cat="${escapeAttr(cat)}" data-month="${CURRENT_MONTH||''}">${gbp(current)}</td>`;
+      bodyHtml += `<td class="col-delta ${deltaClass}">${delta===0?'–':arrow+' '+gbp(Math.abs(delta))}${deltaPct!==null && delta!==0 ? ' ('+(delta>0?'+':'−')+Math.abs(deltaPct).toFixed(0)+'%)' : ''}</td>`;
+      bodyHtml += `</tr>`;
+    });
+  });
+  document.getElementById('spendTbody').innerHTML = bodyHtml;
+
+  const totalDelta = currentTotal - avgTotal;
+  const totalDeltaClass = totalDelta > 0 ? 'over' : (totalDelta < 0 ? 'under' : '');
+  const totalArrow = totalDelta > 0 ? '▲' : (totalDelta < 0 ? '▼' : '–');
+  const totalDeltaPct = avgTotal !== 0 ? (totalDelta/avgTotal*100) : null;
+
+  let footHtml = '<tr><td class="col-cat">Total Spend</td>';
+  TRAILING_MONTHS.forEach(m => { footHtml += `<td>${gbp(columnTotals[m])}</td>`; });
+  footHtml += `<td class="col-avg">${gbp(avgTotal)}</td>`;
+  footHtml += `<td class="col-current">${gbp(currentTotal)}</td>`;
+  footHtml += `<td class="col-delta ${totalDeltaClass}">${totalDelta===0?'–':totalArrow+' '+gbp(Math.abs(totalDelta))}${totalDeltaPct!==null && totalDelta!==0 ? ' ('+(totalDelta>0?'+':'−')+Math.abs(totalDeltaPct).toFixed(0)+'%)' : ''}</td>`;
+  footHtml += `</tr>`;
+  document.getElementById('spendTfoot').innerHTML = footHtml;
+
+  document.querySelectorAll('#spendTbody .cell-click').forEach(td => {
+    td.addEventListener('click', () => openSpendModal(td.dataset.cat, td.dataset.month));
+  });
+}
+
+function openSpendModal(cat, month){
+  if(!month) return;
+  const items = (STATE.spend.transactions[cat] && STATE.spend.transactions[cat][month]) || [];
+  document.getElementById('modalCat').textContent = cat;
+  const isCurrent = month === CURRENT_MONTH;
+  document.getElementById('modalMonth').textContent = monthLong(month) + (isCurrent ? ` — partial, to ${CURRENT_AS_OF_DAY}th` : '');
+
+  const listEl = document.getElementById('modalList');
+  listEl.innerHTML = items.length === 0
+    ? `<div class="modal-empty">No transactions recorded in this category for ${monthShort(month)}.</div>`
+    : items.map(it => `
+      <div class="modal-row">
+        <div>
+          <div class="mdesc">${escapeHtml(it.desc)}</div>
+          <span class="mdate">${formatDate(it.date)}</span>
+        </div>
+        <div class="mamt">${gbp(it.amount)}</div>
+      </div>
+    `).join('');
+
+  const total = items.reduce((a,b) => a + Number(b.amount||0), 0);
+  document.getElementById('modalTotal').innerHTML = `<span>Total</span><b>${gbp(total)}</b>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+document.getElementById('modalClose').addEventListener('click', closeSpendModal);
+document.getElementById('modalOverlay').addEventListener('click', (e) => { if(e.target.id === 'modalOverlay') closeSpendModal(); });
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeSpendModal(); });
+function closeSpendModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
+
+/* =========================================================================
+   Shared: next-month forecast computation
+   ========================================================================= */
+function ongoingBudgetableAvg(){
+  const group = SPEND_GROUPS.find(g => g.id === 'ongoing');
+  return group.categories.reduce((s, cat) => s + rollingAvg(cat), 0);
+}
+
+function computeForecastRows(){
+  const targetMonth = nextMonthOf(CURRENT_MONTH);
+  const budgetPrinciple = principleFor('Monthly Budgetary Spend');
+  const mortgagePrinciple = principleFor('Mortgage Contribution');
+  const savingsPrinciple = principleFor('Savings Contribution');
+
+  const rows = [];
+
+  const budgetAmount = ongoingBudgetableAvg();
+  const budgetSplit = splitAmount(budgetAmount, budgetPrinciple.ratioA, budgetPrinciple.ratioB);
+  rows.push({
+    label: 'Ongoing Monthly Budget',
+    sub: TRAILING_MONTHS.length ? `6-mo avg, ${monthShort(TRAILING_MONTHS[0])}–${monthShort(TRAILING_MONTHS[TRAILING_MONTHS.length-1])}` : 'no data yet',
+    amount: budgetAmount,
+    splitLabel: `${budgetPrinciple.ratioA}:${budgetPrinciple.ratioB}`,
+    tom: budgetSplit.a,
+    hannah: budgetSplit.b
+  });
+
+  const mortgageAmount = catMonthly('Mortgage/Loan', CURRENT_MONTH);
+  const mortgageSplit = splitAmount(mortgageAmount, mortgagePrinciple.ratioA, mortgagePrinciple.ratioB);
+  rows.push({
+    label: 'Mortgage',
+    sub: CURRENT_MONTH ? `latest payment, ${monthShort(CURRENT_MONTH)}` : 'no data yet',
+    amount: mortgageAmount,
+    splitLabel: `${mortgagePrinciple.ratioA}:${mortgagePrinciple.ratioB}`,
+    tom: mortgageSplit.a,
+    hannah: mortgageSplit.b
+  });
+
+  const savingsGoals = computeSavingsGoals();
+  const savingsAmount = savingsGoals.reduce((a,g) => a + g.monthly, 0);
+  const savingsSplit = splitAmount(savingsAmount, savingsPrinciple.ratioA, savingsPrinciple.ratioB);
+  rows.push({
+    label: 'Savings Target',
+    sub: `${savingsGoals.length} goal${savingsGoals.length === 1 ? '' : 's'} — see Widget 06`,
+    amount: savingsAmount,
+    splitLabel: `${savingsPrinciple.ratioA}:${savingsPrinciple.ratioB}`,
+    tom: savingsSplit.a,
+    hannah: savingsSplit.b
+  });
+
+  (STATE.nextMonthConfig.additionalItems || []).forEach(item => {
+    const ra = item.ratioA !== undefined ? item.ratioA : 1;
+    const rb = item.ratioB !== undefined ? item.ratioB : 1;
+    const split = splitAmount(item.amount, ra, rb);
+    rows.push({ label: item.label, sub: 'added this month', amount: item.amount, splitLabel: `${ra}:${rb}`, tom: split.a, hannah: split.b });
+  });
+
+  const totalAmount = rows.reduce((a,r) => a + r.amount, 0);
+  const totalTom = rows.reduce((a,r) => a + r.tom, 0);
+  const totalHannah = rows.reduce((a,r) => a + r.hannah, 0);
+
+  return { targetMonth, rows, totalAmount, totalTom, totalHannah };
+}
+
+/* =========================================================================
+   WIDGET 06: Savings goals — shared computation
+   ========================================================================= */
+function currentBalanceFor(assetLabel){
+  const asset = (STATE.netWorth.assets || []).find(a => a.label === assetLabel);
+  return asset ? Number(asset.amount) : 0;
+}
+function monthsRemainingTo(targetDateStr, fromMonthStr){
+  const [ty, tm] = targetDateStr.split('-').map(Number);
+  const [fy, fm] = fromMonthStr.split('-').map(Number);
+  const months = (ty - fy) * 12 + (tm - fm) + 1;
+  return Math.max(1, months);
+}
+function computeSavingsGoals(){
+  const fromMonth = nextMonthOf(CURRENT_MONTH);
+  return (STATE.savingsGoals || []).map(goal => {
+    const current = currentBalanceFor(goal.label);
+    const hasTarget = goal.targetAmount !== null && goal.targetAmount !== undefined && !!goal.targetDate && !!fromMonth;
+    if(!hasTarget){
+      return { ...goal, current, hasTarget: false, monthsLeft: null, gap: 0, monthly: 0, progressPct: null, fromMonth };
+    }
+    const monthsLeft = monthsRemainingTo(goal.targetDate, fromMonth);
+    const gap = Math.max(0, goal.targetAmount - current);
+    const monthly = gap / monthsLeft;
+    const progressPct = goal.targetAmount > 0 ? Math.min(100, (current / goal.targetAmount) * 100) : 0;
+    return { ...goal, current, hasTarget: true, monthsLeft, gap, monthly, progressPct, fromMonth };
+  });
+}
+
+function renderSavingsGoals(){
+  const goals = computeSavingsGoals();
+  const savingsPrinciple = principleFor('Savings Contribution');
+  const a = STATE.household.contributorAName, b = STATE.household.contributorBName;
+
+  document.getElementById('savingsGoalsAsOf').textContent = 'Contributions start ' + monthLong(nextMonthOf(CURRENT_MONTH));
+  document.getElementById('savingsGoalsNote').innerHTML =
+    `Required monthly contribution assumes you start next month and split ${savingsPrinciple.ratioA}:${savingsPrinciple.ratioB} per the Savings principle. ` +
+    `Current balances are pulled from Widget 02 — update the snapshot there and these recalculate automatically.`;
+
+  document.getElementById('savingsGoalsList').innerHTML = goals.map(g => {
+    if(!g.hasTarget){
+      return `
+        <div class="goal-card">
+          <div class="goal-head">
+            <div class="goal-name">${g.label}</div>
+            <div class="goal-purpose">${g.purpose||''}</div>
+          </div>
+          <div class="goal-amounts"><b>${gbp(g.current)}</b> current balance — no target set, or waiting on spend data to project from</div>
+          <div class="goal-meta"><span>Not included in the monthly savings requirement below</span></div>
+        </div>`;
+    }
+    const split = splitAmount(g.monthly, savingsPrinciple.ratioA, savingsPrinciple.ratioB);
+    const targetDateFormatted = new Date(g.targetDate + 'T00:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    return `
+      <div class="goal-card">
+        <div class="goal-head">
+          <div class="goal-name">${g.label}</div>
+          <div class="goal-purpose">${g.purpose||''}</div>
+        </div>
+        <div class="goal-amounts"><b>${gbp(g.current)}</b> of ${gbp(g.targetAmount)} — ${g.progressPct.toFixed(0)}% there</div>
+        <div class="goal-bar-track"><div class="goal-bar-fill" style="width:${g.progressPct}%"></div></div>
+        <div class="goal-meta">
+          <span>Target date: <b>${targetDateFormatted}</b></span>
+          <span>${g.monthsLeft} month${g.monthsLeft===1?'':'s'} remaining</span>
+          <span>Required monthly: <b>${gbp(g.monthly)}</b></span>
+          <span class="split">split <span class="tom">${a} ${gbp(split.a)}</span> · <span class="hannah">${b} ${gbp(split.b)}</span></span>
+        </div>
+      </div>`;
+  }).join('');
+
+  const totalMonthly = goals.reduce((a,g) => a + g.monthly, 0);
+  const totalSplit = splitAmount(totalMonthly, savingsPrinciple.ratioA, savingsPrinciple.ratioB);
+  document.getElementById('savingsGoalsTotal').innerHTML = `
+    <div>
+      <div class="label">Total Monthly Savings Required</div>
+      <div class="breakdown">Feeds directly into Widget 07's Savings Target line — <b>${a} ${gbp(totalSplit.a)}</b> · <b>${b} ${gbp(totalSplit.b)}</b></div>
+    </div>
+    <div class="value">${gbp(totalMonthly)}</div>
+  `;
+}
+
+/* =========================================================================
+   WIDGET 05: What We Contribute
+   ========================================================================= */
+function contribMonthly(row, m){ return Number((STATE.contrib.rows[row] && STATE.contrib.rows[row].monthly[m]) || 0); }
+
+function renderContribTable(){
+  const forecast = computeForecastRows();
+
+  document.getElementById('contribAsOf').textContent = CONTRIB_CURRENT_MONTH ? ('Snapshot as of ' + CURRENT_AS_OF_DAY + ' ' + monthLong(CONTRIB_CURRENT_MONTH)) : '';
+  document.getElementById('contribNote').innerHTML = CONTRIB_MONTHS.length
+    ? (`Regular payments are counted toward the month they were actually <b style="color:var(--text-mid)">for</b>, not the month they landed in. ` +
+       `${CONTRIB_EXCLUDE_MONTHS.length ? CONTRIB_EXCLUDE_MONTHS.map(monthShort).join(' and ') + ' excluded from this view.' : ''}`)
+    : 'No contribution data yet — sign in and load a monthly snapshot via Widget 09 below.';
+
+  let headHtml = '<tr><th class="col-cat">Row</th>';
+  CONTRIB_MONTHS.forEach(m => { headHtml += `<th>${monthShort(m)}</th>`; });
+  headHtml += `<th class="col-current">${monthShort(forecast.targetMonth)} (forecast)</th></tr>`;
+  document.getElementById('contribThead').innerHTML = headHtml;
+
+  const rowNames = Object.keys(STATE.contrib.rows || {});
+  let bodyHtml = '';
+  const columnTotals = {};
+  CONTRIB_MONTHS.forEach(m => columnTotals[m] = 0);
+
+  rowNames.forEach(row => {
+    bodyHtml += `<tr><td class="col-cat">${row}</td>`;
+    CONTRIB_MONTHS.forEach(m => {
+      const v = contribMonthly(row, m);
+      columnTotals[m] += v;
+      bodyHtml += `<td class="cell-click" data-row="${escapeAttr(row)}" data-month="${m}">${gbp(v)}</td>`;
+    });
+    bodyHtml += `<td>–</td></tr>`;
+  });
+  document.getElementById('contribTbody').innerHTML = bodyHtml;
+
+  let footHtml = '<tr><td class="col-cat">Total Contributed</td>';
+  CONTRIB_MONTHS.forEach(m => { footHtml += `<td>${gbp(columnTotals[m])}</td>`; });
+  footHtml += `<td>–</td></tr>`;
+  footHtml += `<tr><td class="col-cat">Next Month's Contribution</td>`;
+  CONTRIB_MONTHS.forEach(() => { footHtml += `<td>–</td>`; });
+  footHtml += `<td class="col-current">${STATE.household.contributorAName} ${gbp(forecast.totalTom)} · ${STATE.household.contributorBName} ${gbp(forecast.totalHannah)}</td></tr>`;
+  document.getElementById('contribTfoot').innerHTML = footHtml;
+
+  document.querySelectorAll('#contribTbody .cell-click').forEach(td => {
+    td.addEventListener('click', () => openContribModal(td.dataset.row, td.dataset.month));
+  });
+}
+
+function openContribModal(row, month){
+  const items = (STATE.contrib.rows[row] && STATE.contrib.rows[row].transactions[month]) || [];
+  document.getElementById('modalCat').textContent = row;
+  const isCurrent = month === CONTRIB_CURRENT_MONTH;
+  document.getElementById('modalMonth').textContent = monthLong(month) + (isCurrent ? ` — most recent month in this view` : '');
+
+  const listEl = document.getElementById('modalList');
+  listEl.innerHTML = items.length === 0
+    ? `<div class="modal-empty">Nothing recorded under "${row}" for ${monthShort(month)}.</div>`
+    : items.map(it => `
+      <div class="modal-row">
+        <div>
+          <div class="mdesc">${escapeHtml(it.desc)}</div>
+          <span class="mdate">${formatDate(it.date)}</span>
+        </div>
+        <div class="mamt">${gbp(it.amount)}</div>
+      </div>
+    `).join('');
+
+  const total = items.reduce((a,b) => a + Number(b.amount||0), 0);
+  document.getElementById('modalTotal').innerHTML = `<span>Total</span><b>${gbp(total)}</b>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+/* =========================================================================
+   WIDGET 07: Next month's forecast
+   ========================================================================= */
+function renderForecast(){
+  const { targetMonth, rows, totalAmount, totalTom, totalHannah } = computeForecastRows();
+  const a = STATE.household.contributorAName, b = STATE.household.contributorBName;
+
+  document.getElementById('forecastAsOf').textContent = 'Projecting ' + monthLong(targetMonth);
+  document.getElementById('forecastNote').innerHTML = CURRENT_MONTH
+    ? (`Run this after ${monthLong(CURRENT_MONTH)} closes out. Ongoing Monthly Budget uses the same rolling average as Widget 04 — it'll shift forward automatically once a new month's data is added.`)
+    : 'Waiting on spend data before this can project anything.';
+
+  document.getElementById('forecastTbody').innerHTML = rows.map(r => `
+    <tr>
+      <td class="col-cat">${r.label}<span class="row-sub">${r.sub}</span></td>
+      <td>${gbp(r.amount)}</td>
+      <td class="col-split">${r.splitLabel}</td>
+      <td class="col-tom">${gbp(r.tom)}</td>
+      <td class="col-hannah">${gbp(r.hannah)}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('forecastTfoot').innerHTML = `
+    <tr>
+      <td class="col-cat">Total Due</td>
+      <td>${gbp(totalAmount)}</td>
+      <td></td>
+      <td class="col-tom">${gbp(totalTom)}</td>
+      <td class="col-hannah">${gbp(totalHannah)}</td>
+    </tr>
+  `;
+
+  document.getElementById('forecastStrip').innerHTML = `
+    <div class="forecast-person tom">
+      <div class="label">${a} to contribute</div>
+      <div class="value">${gbp(totalTom)}</div>
+      <div class="household">for ${monthLong(targetMonth)}</div>
+    </div>
+    <div class="forecast-person hannah">
+      <div class="label">${b} to contribute</div>
+      <div class="value">${gbp(totalHannah)}</div>
+      <div class="household">for ${monthLong(targetMonth)}</div>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   WIDGET 03: Story of the month
+   ========================================================================= */
+function renderStoryOfMonth(){
+  const m = STATE.story.month;
+  document.getElementById('storyAsOf').textContent = monthLong(m);
+  document.getElementById('storyIntro').innerHTML =
+    `Written after each month closes, checked against that month's bank statement. ` +
+    (m ? `<b style="color:var(--text-mid)">${monthLong(m)}</b> is the most recent write-up.` : 'No write-up yet.');
+
+  document.getElementById('storyNarrative').innerHTML =
+    (STATE.story.narrative || []).map(p => `<p>${p}</p>`).join('') || `<p style="color:var(--text-low)">Nothing written yet.</p>`;
+
+  const statGroups = ['mortgage', 'ongoing', 'oneoff', 'review'];
+  document.getElementById('storyStats').innerHTML = statGroups.map(gid => {
+    const group = SPEND_GROUPS.find(g => g.id === gid);
+    const avg = group.categories.reduce((s,c) => s + rollingAvg(c), 0);
+    const actual = group.categories.reduce((s,c) => s + catMonthly(c, m), 0);
+    const delta = actual - avg;
+    const deltaClass = delta > 0 ? 'over' : (delta < 0 ? 'under' : 'flat');
+    const arrow = delta > 0 ? '▲' : (delta < 0 ? '▼' : '–');
+    const pct = avg !== 0 ? (delta/avg*100).toFixed(0) : null;
+    return `
+      <div class="story-stat">
+        <div class="s-label">${group.label}</div>
+        <div class="s-value">${gbp(actual)}</div>
+        <div class="s-delta ${deltaClass}">${delta===0?'On average':arrow+' '+gbp(Math.abs(delta))+(pct!==null?' ('+pct+'%)':'')+' vs avg'}</div>
+      </div>`;
+  }).join('');
+}
+
+/* =========================================================================
+   WIDGET 08: Rolling actions
+   ========================================================================= */
+function renderRollingActions(){
+  document.getElementById('actionsAsOf').textContent = 'Updated ' + monthLong(STATE.story.month);
+  document.getElementById('actionsIntro').innerHTML =
+    `A standing list, not a monthly rewrite — new items get appended during each Story of the Month review, and struck off as they're resolved. Ticking a box updates the cloud copy of this list.`;
+
+  const listEl = document.getElementById('rollingActionsList');
+  listEl.innerHTML = (STATE.actions || []).map((a, i) => {
+    const open = monthsOpen(a.raisedMonth, STATE.story.month);
+    const ageLabel = a.raisedMonth ? (open === 0 ? 'raised this month' : `open ${open} month${open===1?'':'s'}`) : '';
+    return `
+      <li class="action-item${a.done ? ' done' : ''}" data-idx="${i}">
+        <label class="action-check">
+          <input type="checkbox" ${a.done ? 'checked' : ''} data-idx="${i}">
+        </label>
+        <div class="action-body">
+          <div class="action-text">${a.text}</div>
+          <div class="action-meta">${a.raisedMonth ? ('Raised <b>' + monthLong(a.raisedMonth) + '</b> · ' + ageLabel) : ''}</div>
+        </div>
+      </li>`;
+  }).join('') || `<li style="color:var(--text-low); font-size:13px;">No actions yet.</li>`;
+
+  listEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', async (e) => {
+      const idx = Number(e.target.dataset.idx);
+      STATE.actions[idx].done = e.target.checked;
+      renderRollingActions();
+      await persistActionsChange();
+    });
+  });
+}
+
+async function persistActionsChange(){
+  const statusEl = document.getElementById('actionsSyncStatus');
+  if(typeof window.__saveStateToCloud !== 'function'){
+    statusEl.textContent = 'Kept in this browser only — cloud storage isn\'t connected yet.';
+    statusEl.className = 'json-import-status';
+    return;
+  }
+  statusEl.textContent = 'Saving…';
+  statusEl.className = 'json-import-status';
+  try {
+    await window.__saveStateToCloud(STATE);
+    statusEl.textContent = 'Saved — visible to both of you now.';
+    statusEl.className = 'json-import-status success';
+  } catch(e){
+    statusEl.textContent = 'Save failed: ' + e.message;
+    statusEl.className = 'json-import-status error';
+  }
+}
+
+/* =========================================================================
+   MASTER RENDER — recomputes derived values from STATE, then renders
+   every widget in dependency order. Called whenever STATE changes: after
+   a cloud load, after applying a pasted snapshot, or after a checkbox
+   toggle in Rolling Actions.
+   ========================================================================= */
+function deriveAndRenderAll(){
+  SPEND_MONTHS = STATE.spend.months || [];
+  CURRENT_MONTH = SPEND_MONTHS.length ? SPEND_MONTHS[SPEND_MONTHS.length-1] : null;
+  TRAILING_MONTHS = SPEND_MONTHS.length ? SPEND_MONTHS.slice(Math.max(0, SPEND_MONTHS.length-7), SPEND_MONTHS.length-1) : [];
+  CURRENT_AS_OF_DAY = STATE.meta.currentAsOfDay || 1;
+
+  CONTRIB_EXCLUDE_MONTHS = STATE.contrib.excludeMonths || [];
+  CONTRIB_MONTHS = (STATE.contrib.months || []).filter(m => !CONTRIB_EXCLUDE_MONTHS.includes(m));
+  CONTRIB_CURRENT_MONTH = CONTRIB_MONTHS.length ? CONTRIB_MONTHS[CONTRIB_MONTHS.length-1] : null;
+  CONTRIB_TRAILING_MONTHS = CONTRIB_MONTHS.slice(0, Math.max(0, CONTRIB_MONTHS.length-1));
+
+  renderPrinciples();
+  renderApproaches();
+  renderAll();
+  renderSpendTable();
+  renderContribTable();
+  renderForecast();
+  renderSavingsGoals();
+  renderStoryOfMonth();
+  renderRollingActions();
+}
+
+/* =========================================================================
+   WIDGET 09: Monthly data update — apply locally, save to cloud, or copy
+   the current state back out as JSON.
+   ========================================================================= */
+const STATE_KEYS = ['household','principles','netWorth','moneyApproaches','spend','contrib','savingsGoals','nextMonthConfig','story','actions','meta'];
+
+// spend and contrib are month-by-month histories, not point-in-time snapshots — merging
+// (rather than replacing) lets a monthly update JSON contain just the new month instead
+// of the whole history every time. Everything else in STATE_KEYS is a current-state
+// snapshot (net worth, goals, etc.) where a full replace is the right behaviour.
+function mergeMonthsArray(existing, incoming){
+  const set = new Set(existing || []);
+  (incoming || []).forEach(m => set.add(m));
+  return Array.from(set).sort(); // "YYYY-MM" strings sort chronologically as-is
+}
+
+function mergeSpend(target, incoming){
+  if(incoming.months) target.months = mergeMonthsArray(target.months, incoming.months);
+  if(incoming.categories){
+    const set = new Set(target.categories || []);
+    incoming.categories.forEach(c => set.add(c));
+    target.categories = Array.from(set);
+  }
+  if(incoming.monthly){
+    Object.keys(incoming.monthly).forEach(cat => {
+      target.monthly[cat] = target.monthly[cat] || {};
+      Object.assign(target.monthly[cat], incoming.monthly[cat]);
+    });
+  }
+  if(incoming.transactions){
+    Object.keys(incoming.transactions).forEach(cat => {
+      target.transactions[cat] = target.transactions[cat] || {};
+      Object.assign(target.transactions[cat], incoming.transactions[cat]);
+    });
+  }
+}
+
+function mergeContrib(target, incoming){
+  if(incoming.months) target.months = mergeMonthsArray(target.months, incoming.months);
+  if(incoming.excludeMonths) target.excludeMonths = incoming.excludeMonths;
+  if(incoming.rows){
+    Object.keys(incoming.rows).forEach(row => {
+      target.rows[row] = target.rows[row] || { monthly: {}, transactions: {} };
+      if(incoming.rows[row].monthly) Object.assign(target.rows[row].monthly, incoming.rows[row].monthly);
+      if(incoming.rows[row].transactions) Object.assign(target.rows[row].transactions, incoming.rows[row].transactions);
+    });
+  }
+}
+
+function applyJsonToState(data){
+  const applied = [];
+  STATE_KEYS.forEach(k => {
+    if(data[k] === undefined) return;
+    if(k === 'spend') mergeSpend(STATE.spend, data.spend);
+    else if(k === 'contrib') mergeContrib(STATE.contrib, data.contrib);
+    else STATE[k] = data[k];
+    applied.push(k);
+  });
+  return applied;
+}
+
+function loadJsonSnapshot(){
+  const statusEl = document.getElementById('jsonImportStatus');
+  const raw = document.getElementById('jsonImportBox').value.trim();
+  if(!raw){ statusEl.textContent = 'Paste a JSON snapshot first.'; statusEl.className = 'json-import-status error'; return; }
+
+  let data;
+  try { data = JSON.parse(raw); }
+  catch(e){ statusEl.textContent = 'Invalid JSON: ' + e.message; statusEl.className = 'json-import-status error'; return; }
+
+  const applied = applyJsonToState(data);
+  if(applied.length === 0){
+    statusEl.textContent = 'No recognised keys found (expected any of: ' + STATE_KEYS.join(', ') + ').';
+    statusEl.className = 'json-import-status error';
+    return;
+  }
+  deriveAndRenderAll();
+  statusEl.textContent = 'Applied locally (not yet saved to cloud): ' + applied.join(', ') + '.';
+  statusEl.className = 'json-import-status success';
+}
+
+async function saveStateToCloud(){
+  const statusEl = document.getElementById('jsonImportStatus');
+  if(typeof window.__saveStateToCloud !== 'function'){
+    statusEl.textContent = 'Cloud storage isn\'t connected yet — check the Firebase config at the bottom of index.html.';
+    statusEl.className = 'json-import-status error';
+    return;
+  }
+  statusEl.textContent = 'Saving…';
+  statusEl.className = 'json-import-status';
+  try {
+    await window.__saveStateToCloud(STATE);
+    statusEl.textContent = 'Saved to cloud.';
+    statusEl.className = 'json-import-status success';
+    const cs = document.getElementById('cloudSyncStatus');
+    if(cs) cs.textContent = 'Loaded from cloud (just saved).';
+  } catch(e){
+    statusEl.textContent = 'Save failed: ' + e.message;
+    statusEl.className = 'json-import-status error';
+  }
+}
+
+function copyStateAsJson(){
+  const statusEl = document.getElementById('jsonImportStatus');
+  const text = JSON.stringify(STATE, null, 2);
+  navigator.clipboard.writeText(text).then(() => {
+    statusEl.textContent = 'Current data copied to clipboard as JSON.';
+    statusEl.className = 'json-import-status success';
+  }).catch(() => {
+    document.getElementById('jsonImportBox').value = text;
+    statusEl.textContent = 'Clipboard unavailable — current data has been put in the box above instead.';
+    statusEl.className = 'json-import-status';
+  });
+}
+
+document.getElementById('jsonImportBtn').addEventListener('click', loadJsonSnapshot);
+document.getElementById('cloudSaveBtn').addEventListener('click', saveStateToCloud);
+document.getElementById('copyStateBtn').addEventListener('click', copyStateAsJson);
+document.getElementById('jsonImportNote').innerHTML =
+  `Paste a snapshot and click <b style="color:var(--text-mid)">Apply Locally</b> to preview it in your browser only, then ` +
+  `<b style="color:var(--text-mid)">Save to Cloud</b> once you're happy, to persist it to Firestore for both of you. ` +
+  `<b style="color:var(--text-mid)">Copy Current Data as JSON</b> grabs what's currently loaded (e.g. to edit offline and re-paste). Only the keys you include get replaced — anything omitted is left as-is.`;
+
+/* =========================================================================
+   Hooks called by the Firebase module script at the bottom of this file,
+   once a sign-in is confirmed and authorized.
+   ========================================================================= */
+window.__applyCloudState = function(cloudData){
+  if(cloudData) applyJsonToState(cloudData);
+  deriveAndRenderAll();
+  const s = document.getElementById('cloudSyncStatus');
+  if(s) s.textContent = cloudData
+    ? 'Loaded from cloud.'
+    : 'No cloud data yet — paste your household snapshot into Widget 09 below, then click "Save to Cloud" to initialize it.';
+};
+window.__cloudLoadError = function(err){
+  deriveAndRenderAll();
+  const s = document.getElementById('cloudSyncStatus');
+  if(s) s.textContent = 'Could not reach the cloud database: ' + err.message;
+};
+</script>
+
+<!-- =========================================================================
+     FIREBASE: Google sign-in + Firestore storage.
+
+     SETUP REQUIRED — see README.md for the full walkthrough. In short:
+       1. Create a free Firebase project at https://console.firebase.google.com
+       2. Add a Web App to it, copy the config object it gives you, and
+          paste it into `firebaseConfig` below.
+       3. Enable "Google" as a sign-in provider (Authentication > Sign-in method).
+       4. Create a Firestore database (production mode is fine).
+       5. Paste the contents of firestore.rules into Firestore > Rules, with
+          your and your partner's real Google account emails filled in —
+          THAT is what actually restricts access, not this file.
+       6. Optionally fill in ALLOWED_EMAILS below too, purely so this page
+          can show a friendly "not authorized" message instead of a blank
+          Firestore permission error.
+     ========================================================================= -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  // ---- 1) Fill this in with YOUR Firebase project's config. These values
+  // are not secret (they're meant to ship in client-side code) — real
+  // security comes from firestore.rules, not from hiding this object. ----
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // ---- 2) Optional friendly-message allowlist. Leave empty to skip the
+  // client-side check (Firestore rules still protect the data either way).
+  // Fill in to make an unauthorized sign-in show a clear message instead
+  // of a silent permission error. Keep this in sync with firestore.rules. ----
+  const ALLOWED_EMAILS = [
+    // "you@gmail.com"
+  ];
+
+  const gateEl = document.getElementById('authGate');
+  const contentEl = document.getElementById('appContent');
+  const gateStatusEl = document.getElementById('authGateStatus');
+  const signInBtn = document.getElementById('signInBtn');
+  const signOutBtn = document.getElementById('signOutBtn');
+
+  const configured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'YOUR_API_KEY';
+  if(!configured){
+    gateStatusEl.textContent = 'Firebase isn\'t configured yet. Open index.html, find the firebaseConfig object near the bottom, and fill it in with your Firebase project\'s details (see README.md).';
+    signInBtn.style.display = 'none';
+  } else {
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+    const SNAPSHOT_DOC = doc(db, 'household', 'snapshot');
+
+    signInBtn.style.display = 'inline-flex';
+    signInBtn.addEventListener('click', () => {
+      gateStatusEl.textContent = 'Opening Google sign-in…';
+      signInWithPopup(auth, provider).catch(err => {
+        const msg = err.message || '';
+        const looksLikeStorageIssue = msg.includes('missing initial state') || msg.includes('sessionStorage') || err.code === 'auth/web-storage-unsupported' || err.code === 'auth/operation-not-supported-in-this-environment';
+        gateStatusEl.textContent = looksLikeStorageIssue
+          ? 'Sign-in failed — this browser is blocking the storage Google Sign-In needs. If you opened this link from WhatsApp, Instagram, or a similar app, open it in Safari or Chrome instead (share icon → Open in Safari) and try again.'
+          : 'Sign-in failed: ' + err.message;
+      });
+    });
+    signOutBtn.addEventListener('click', () => signOut(auth));
+
+    window.__saveStateToCloud = async function(stateObj){
+      await setDoc(SNAPSHOT_DOC, {
+        ...stateObj,
+        updatedAt: serverTimestamp(),
+        updatedBy: auth.currentUser ? auth.currentUser.email : null
+      });
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if(!user){
+        contentEl.style.display = 'none';
+        gateEl.style.display = 'flex';
+        signOutBtn.style.display = 'none';
+        gateStatusEl.textContent = 'Sign in with an authorized Google account to view the household ledger.';
+        return;
+      }
+
+      const allowed = ALLOWED_EMAILS.length === 0 || ALLOWED_EMAILS.includes(user.email);
+      if(!allowed){
+        contentEl.style.display = 'none';
+        gateEl.style.display = 'flex';
+        signOutBtn.style.display = 'inline-block';
+        gateStatusEl.textContent = `Signed in as ${user.email}, but this account isn't on the household allowlist.`;
+        return;
+      }
+
+      gateEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      signOutBtn.style.display = 'inline-block';
+
+      try {
+        const snap = await getDoc(SNAPSHOT_DOC);
+        window.__applyCloudState(snap.exists() ? snap.data() : null);
+      } catch(err){
+        window.__cloudLoadError(err);
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

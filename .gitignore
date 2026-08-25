@@ -1,0 +1,6 @@
+# Never commit real household data to this public repo.
+# See README.md — real figures live only in Firestore.
+seed-data*.json
+*-DO-NOT-COMMIT.*
+.env
+.env.*
