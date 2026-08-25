@@ -145,7 +145,6 @@
     white-space: nowrap;
   }
   .line-item.liability .item-value{ color: var(--clay); }
-  .line-item.equity .item-value{ color: var(--brass); font-weight: 500; }
 
   .pensions{ display:block; }
 
@@ -893,9 +892,6 @@
     <!-- Assets tile -->
     <div class="tile" id="assetsTile"></div>
 
-    <!-- Property / mortgage tile -->
-    <div class="tile" id="liabilitiesTile"></div>
-
     <!-- Other liabilities: loans, credit cards, etc. -->
     <div class="tile" id="debtsTile"></div>
 
@@ -1044,7 +1040,7 @@
     <div class="json-import-body">
       <textarea id="jsonImportBox" class="json-import-box" spellcheck="false" placeholder='Paste a full snapshot here, e.g.:
 {
-  "netWorth": { "asOf": "2026-09-24", "assets": [...], "property": {...}, "liabilities": [...], "pensions": { "pots": [...] } },
+  "netWorth": { "asOf": "2026-09-24", "assets": [...], "liabilities": [...], "pensions": { "pots": [...] } },
   "spend": { "months": [...], "categories": [...], "monthly": {...}, "transactions": {...} },
   "savingsGoals": [...],
   "story": { "month": "2026-09", "narrative": ["...", "..."] },
@@ -1064,7 +1060,7 @@ Only the keys you include get replaced — anything omitted is left as-is.'></te
   </section>
 
   <div class="coming-next">
-    <b>Next widgets (planned):</b> Debt Payoff (Loans / Credit Cards / Mortgage) · Cash Flow Forecast beyond next month.
+    <b>Next widgets (planned):</b> Debt Payoff (Loans / Credit Cards) · Cash Flow Forecast beyond next month.
     Each will live in its own <code>&lt;section class="widget"&gt;</code> block reading from the same cloud snapshot.
   </div>
 
@@ -1109,7 +1105,6 @@ let STATE = {
   netWorth: {
     asOf: null,
     assets: [],
-    property: { marketValue: 0, mortgageBalance: 0 },
     liabilities: [],
     pensions: { pots: [] }
   },
@@ -1227,30 +1222,6 @@ function renderAssetsTile(){
   el.innerHTML = html;
 }
 
-function renderLiabilitiesTile(){
-  const p = STATE.netWorth.property;
-  const equity = p.marketValue - p.mortgageBalance;
-  const el = document.getElementById('liabilitiesTile');
-  el.innerHTML = `
-    <div class="tile-head">
-      <div class="tile-label">Property &amp; Mortgage</div>
-      <div class="tile-total liabilities">${gbp(p.mortgageBalance)}</div>
-    </div>
-    <div class="line-item liability">
-      <div class="item-label">Mortgage — Total Balance</div>
-      <div class="item-value">${gbp(p.mortgageBalance)}</div>
-    </div>
-    <div class="line-item">
-      <div class="item-label">Property Value (est.)</div>
-      <div class="item-value">${gbp(p.marketValue)}</div>
-    </div>
-    <div class="line-item equity">
-      <div class="item-label">Equity</div>
-      <div class="item-value">${gbp(equity)}</div>
-    </div>
-  `;
-}
-
 function renderDebtsTile(){
   const debts = STATE.netWorth.liabilities || [];
   const total = sum(debts);
@@ -1293,14 +1264,13 @@ function renderPensions(){
 function renderNetWorth(){
   const nw = STATE.netWorth;
   const assets = sum(nw.assets);
-  const equity = nw.property.marketValue - nw.property.mortgageBalance;
   const debts = sum(nw.liabilities);
   const pensions = sum(nw.pensions.pots);
-  const total = assets + equity + pensions - debts;
+  const total = assets + pensions - debts;
 
   document.getElementById('netWorthValue').textContent = gbp(total);
   document.getElementById('breakdown').innerHTML =
-    `Assets <b>${gbp(assets)}</b> · Property Equity <b>${gbp(equity)}</b> · Pensions <b>${gbp(pensions)}</b>` +
+    `Assets <b>${gbp(assets)}</b> · Pensions <b>${gbp(pensions)}</b>` +
     (debts ? ` · Loans/Cards <b>−${gbp(debts)}</b>` : '');
   document.getElementById('asOfDate').textContent = nw.asOf
     ? ('Snapshot as of ' + new Date(nw.asOf).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }))
@@ -1309,7 +1279,6 @@ function renderNetWorth(){
 
 function renderAll(){
   renderAssetsTile();
-  renderLiabilitiesTile();
   renderDebtsTile();
   renderPensions();
   renderNetWorth();
