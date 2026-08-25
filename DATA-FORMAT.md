@@ -53,6 +53,10 @@ statement) so its output loads cleanly.
     { "label": "Santander 1/2/3 Account", "amount": 120.50 }
   ],
   "property": { "marketValue": 455000, "mortgageBalance": 195800 },
+  "liabilities": [
+    { "label": "Barclaycard", "amount": 1240.50 },
+    { "label": "Car Loan — MotoNovo", "amount": 6800 }
+  ],
   "pensions": {
     "pots": [ { "label": "Workplace Pension", "amount": 316000 } ]
   }
@@ -63,6 +67,13 @@ an asset by matching its `label` exactly** (see `savingsGoals` below), so
 keep account labels stable month to month rather than renaming them.
 `pensions.pots` is a flat list — add one entry per pension pot/provider,
 no split between people.
+
+`liabilities` is where **loans and credit card balances live** — anything
+that isn't the mortgage (which stays under `property.mortgageBalance`
+since it's paired with a property value to net out equity). Each entry is
+`{ "label": "...", "amount": ... }`, same shape as `assets`. These are
+subtracted from net worth, and shown in their own tile in Widget 01. Like
+asset labels, keep them stable month to month.
 
 ### `spend`
 **Merged, not replaced** — a monthly update only needs the new month:
@@ -102,7 +113,8 @@ like):
 {
   "months": ["2026-01", "2026-02", "...", "2026-09"],
   "categories": [
-    "Mortgage/Loan", "Car Finance", "Council Tax", "Utilities",
+    "Mortgage/Loan", "Car Finance", "Credit Card", "Loan Repayment",
+    "Council Tax", "Utilities",
     "TV/Subscriptions", "Insurance", "Groceries", "Fuel/Transport",
     "Dining Out/Takeaway", "Entertainment & Family Activities",
     "Kids' Activities", "Household Maintenance & Contractors",
@@ -130,6 +142,12 @@ introduce a genuinely new category, it needs to be added to
 `SPEND_GROUPS` in `index.html` (a code change, not a data change) — ask
 for that separately rather than inventing a new category name in the
 JSON.
+
+`Credit Card` and `Loan Repayment` track the **monthly payment amount**
+(same idea as `Car Finance`) — this is spend, separate from the
+**balance owed**, which lives in `netWorth.liabilities` instead. Both
+usually change together each month (a payment reduces the balance) but
+they're two different numbers in two different places.
 
 For each category, `monthly[category][month]` should equal the sum of
 `transactions[category][month][].amount` for that same month — the
@@ -194,13 +212,14 @@ point-in-time `netWorth` snapshot above:
   "netWorthHistory": {
     "months": ["2026-09"],
     "entries": {
-      "2026-09": { "assets": 12400, "liabilities": 195800, "pensions": 316000 }
+      "2026-09": { "assets": 12400, "liabilities": 203840.50, "pensions": 316000 }
     }
   }
 }
 ```
-`liabilities` should be the mortgage balance (or total debts) for that
-month, not equity — the app computes net worth itself as
+`liabilities` here is a single combined figure — `property.mortgageBalance`
+**plus** the sum of `netWorth.liabilities` (loans, credit cards) for that
+same month, not equity — the app computes net worth itself as
 `assets − liabilities + pensions`. Add one entry each month (typically
 the same month you refresh `netWorth`) and the trajectory chart/table
 extends automatically; existing months are left untouched.
