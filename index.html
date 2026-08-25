@@ -147,10 +147,7 @@
   .line-item.liability .item-value{ color: var(--clay); }
   .line-item.equity .item-value{ color: var(--brass); font-weight: 500; }
 
-  .pensions{ display:grid; grid-template-columns: 1fr 1px 1fr; }
-  @media (max-width: 700px){ .pensions{ grid-template-columns: 1fr; } }
-  .pensions .divider{ background: var(--line); }
-  @media (max-width: 700px){ .pensions .divider{ height:1px; } }
+  .pensions{ display:block; }
 
   .person{ padding: 22px 28px 24px; }
   .person-name{
@@ -243,7 +240,7 @@
   }
   .coming-next b{ color: var(--text-mid); }
 
-  /* ---------- Widget 03: story of the month ---------- */
+  /* ---------- Widget 02: story of the month ---------- */
   .story-narrative{
     font-size: 13.5px;
     line-height: 1.8;
@@ -336,7 +333,7 @@
   }
   .action-item.done .action-meta{ opacity: 0.6; }
 
-  /* ---------- Where We Spend: table ---------- */
+  /* ---------- Widget 03: where I spend table ---------- */
   .spend-note{
     padding: 14px 28px 0;
     font-family: 'IBM Plex Mono', monospace;
@@ -565,209 +562,7 @@
     line-height: 1.5;
   }
 
-  /* ---------- Principles grid ---------- */
-  .principles-grid{
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--line);
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  @media (max-width: 700px){ .principles-grid{ grid-template-columns: 1fr; } }
-  .principle-card{
-    background: var(--ink-2);
-    padding: 18px 20px;
-  }
-  .principle-card .p-label{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-low);
-    margin-bottom: 10px;
-  }
-  .principle-card .p-ratio{
-    font-family: 'Fraunces', serif;
-    font-weight: 500;
-    font-size: 30px;
-    color: var(--brass);
-    line-height: 1;
-  }
-  .principle-card .p-names{
-    font-size: 12px;
-    color: var(--text-mid);
-    margin-top: 4px;
-  }
-  .principle-card .p-pct{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11.5px;
-    color: var(--text-hi);
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px dashed var(--line);
-  }
-  .principle-card .p-basis{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    color: var(--text-low);
-    margin-top: 6px;
-  }
-
-  /* ---------- Agreed approaches to money ---------- */
-  .approach-add{ margin-bottom: 4px; }
-  textarea.approach-input{
-    width: 100%;
-    min-height: 56px;
-    background: var(--ink);
-    border: 1px solid var(--line-strong);
-    border-radius: 4px;
-    color: var(--text-mid);
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 13px;
-    line-height: 1.5;
-    padding: 10px 12px;
-    resize: vertical;
-    box-sizing: border-box;
-  }
-  textarea.approach-input::placeholder{ color: var(--text-low); }
-  textarea.approach-input:focus{ outline: none; border-color: var(--brass-dim); }
-  .approach-add-row{
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: 10px;
-  }
-  .approaches-list{
-    margin: 14px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-  .approach-item{
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 12px 0;
-    border-top: 1px dashed var(--line);
-  }
-  .approach-item:first-child{ border-top: none; }
-  .approach-text{
-    font-size: 13px;
-    color: var(--text-mid);
-    line-height: 1.6;
-    flex: 1;
-    min-width: 0;
-    white-space: pre-wrap;
-  }
-  .approach-meta{
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10.5px;
-    color: var(--text-low);
-    margin-top: 4px;
-  }
-  .approach-remove{
-    flex-shrink: 0;
-    background: none;
-    border: none;
-    color: var(--text-low);
-    font-size: 11px;
-    font-family: 'IBM Plex Mono', monospace;
-    cursor: pointer;
-    text-decoration: underline;
-    padding: 2px 0;
-  }
-  .approach-remove:hover{ color: var(--clay); }
-
-  /* ---------- Widget 05: forecast table ---------- */
-  table.forecast-table{
-    border-collapse: collapse;
-    width: 100%;
-    min-width: 600px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12.5px;
-  }
-  .forecast-table thead th{
-    text-align: right;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-low);
-    padding: 0 10px 10px;
-    border-bottom: 1px solid var(--line-strong);
-    white-space: nowrap;
-  }
-  .forecast-table thead th.col-cat{ text-align: left; }
-  .forecast-table thead th.col-tom{ color: var(--sage); }
-  .forecast-table thead th.col-hannah{ color: var(--brass); }
-  .forecast-table tbody td, .forecast-table tfoot td{
-    padding: 10px 10px;
-    text-align: right;
-    border-bottom: 1px dashed var(--line);
-    white-space: nowrap;
-  }
-  .forecast-table td.col-cat{
-    text-align: left;
-    font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 13px;
-    color: var(--text-mid);
-  }
-  .forecast-table td.col-cat .row-sub{
-    display:block;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    color: var(--text-low);
-    margin-top: 2px;
-  }
-  .forecast-table td.col-split{ color: var(--text-low); font-size: 11.5px; }
-  .forecast-table td.col-tom{ color: var(--sage); }
-  .forecast-table td.col-hannah{ color: var(--brass); }
-  .forecast-table td.needs-input{ color: var(--clay); font-style: italic; }
-  .forecast-table tfoot td{
-    border-bottom: none;
-    border-top: 1px solid var(--line-strong);
-    font-weight: 500;
-    color: var(--text-hi);
-  }
-  .forecast-table tfoot td.col-cat{
-    font-family: 'Fraunces', serif;
-    font-size: 14px;
-  }
-
-  .forecast-strip{
-    display:flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 26px 28px;
-    background: var(--ink-3);
-    border-top: 1px solid var(--line-strong);
-    flex-wrap: wrap;
-  }
-  .forecast-person{ flex: 1; min-width: 180px; }
-  .forecast-person .label{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--text-low);
-  }
-  .forecast-person .value{
-    font-family:'Fraunces', serif;
-    font-weight: 500;
-    font-size: clamp(26px, 4vw, 36px);
-    margin-top: 4px;
-  }
-  .forecast-person.tom .value{ color: var(--sage); }
-  .forecast-person.hannah .value{ color: var(--brass); }
-  .forecast-person .household{
-    font-family:'IBM Plex Mono', monospace;
-    font-size: 10.5px;
-    color: var(--text-low);
-    margin-top: 6px;
-  }
-
-  /* ---------- Widget 06: savings goals ---------- */
+  /* ---------- Widget 04: savings goals ---------- */
   .goal-card{
     padding: 20px 28px;
     border-bottom: 1px solid var(--line);
@@ -824,9 +619,6 @@
     color: var(--text-low);
   }
   .goal-meta b{ color: var(--text-mid); font-weight: 500; }
-  .goal-meta .split{ color: var(--text-mid); }
-  .goal-meta .split .tom{ color: var(--sage); }
-  .goal-meta .split .hannah{ color: var(--brass); }
   .goal-flag{
     color: var(--clay);
   }
@@ -862,7 +654,48 @@
     color: var(--brass);
   }
 
-  /* ---------- Widget 09: JSON import / cloud sync ---------- */
+  /* ---------- Widget 06: net worth trajectory ---------- */
+  .trajectory-chart-wrap{ padding: 22px 28px 8px; }
+  .trajectory-chart-wrap svg{ width:100%; height:auto; display:block; }
+  .trajectory-empty{
+    padding: 24px 28px;
+    color: var(--text-low);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+  .trajectory-strip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 20px;
+    padding: 22px 28px;
+    background: var(--ink-3);
+    border-top: 1px solid var(--line-strong);
+    flex-wrap: wrap;
+  }
+  .trajectory-strip .label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-low);
+  }
+  .trajectory-strip .breakdown{
+    font-family:'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--text-low);
+    margin-top: 6px;
+  }
+  .trajectory-strip .breakdown b{ color: var(--text-mid); font-weight:500; }
+  .trajectory-strip .value{
+    font-family:'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(24px, 4vw, 34px);
+  }
+  .trajectory-strip .value.up{ color: var(--sage); }
+  .trajectory-strip .value.down{ color: var(--clay); }
+
+  /* ---------- Widget 07: JSON import / cloud sync ---------- */
   .json-import-body{ padding: 22px 28px 26px; }
   textarea.json-import-box{
     width: 100%;
@@ -1048,43 +881,11 @@
 
 <main>
 
-  <!-- ================= WIDGET 01: HOUSEHOLD PRINCIPLES ================= -->
-  <section class="widget" id="widget-principles" data-component="household-principles">
-    <div class="widget-head">
-      <div>
-        <div class="tag">Widget 01 · Principles</div>
-        <h2>Household Principles &amp; Contributions</h2>
-      </div>
-    </div>
-
-    <div class="tile">
-      <div class="tile-head">
-        <div class="tile-label">Agreed Contribution Principles</div>
-      </div>
-      <div class="principles-grid" id="principlesGrid"></div>
-    </div>
-
-    <div class="tile">
-      <div class="tile-head">
-        <div class="tile-label">Agreed Approaches to Money</div>
-        <div class="tile-note">Anything you've agreed beyond the three principles above — write it down here so it's visible to both of you.</div>
-      </div>
-      <div class="approach-add">
-        <textarea id="approachInput" class="approach-input" rows="2" placeholder="e.g. We'll each keep back £50/month for personal spending before the joint split..."></textarea>
-        <div class="approach-add-row">
-          <button type="button" id="approachAddBtn" class="json-import-btn">Add</button>
-          <span id="approachStatus" class="json-import-status"></span>
-        </div>
-      </div>
-      <ul class="approaches-list" id="approachesList"></ul>
-    </div>
-  </section>
-
-  <!-- ================= WIDGET 02: NET WORTH SUMMARY ================= -->
+  <!-- ================= WIDGET 01: NET WORTH SUMMARY ================= -->
   <section class="widget" id="widget-networth" data-component="net-worth-summary">
     <div class="widget-head">
       <div>
-        <div class="tag">Widget 02 · Position</div>
+        <div class="tag">Widget 01 · Position</div>
         <h2>Net Worth Summary</h2>
       </div>
     </div>
@@ -1097,8 +898,8 @@
 
     <div class="widget-head" style="border-top:1px solid var(--line); border-bottom:none;">
       <div>
-        <div class="tag">In the spirit of transparency</div>
-        <h2 style="font-size:18px;">Pensions — Both of Us</h2>
+        <div class="tag">Retirement</div>
+        <h2 style="font-size:18px;">Pensions</h2>
       </div>
     </div>
 
@@ -1117,7 +918,7 @@
   <section class="widget" id="widget-story" data-component="story-of-the-month">
     <div class="widget-head">
       <div>
-        <div class="tag">Widget 03 · Narrative</div>
+        <div class="tag">Widget 02 · Narrative</div>
         <h2>Story of the Month</h2>
       </div>
       <div class="as-of" id="storyAsOf"></div>
@@ -1140,12 +941,12 @@
     </div>
   </section>
 
-  <!-- ================= WIDGET 4: WHERE WE SPEND ================= -->
-  <section class="widget" id="widget-spend" data-component="where-we-spend">
+  <!-- ================= WIDGET 03: WHERE I SPEND ================= -->
+  <section class="widget" id="widget-spend" data-component="where-i-spend">
     <div class="widget-head">
       <div>
-        <div class="tag">Widget 04 · Spend</div>
-        <h2>Where We Spend</h2>
+        <div class="tag">Widget 03 · Spend</div>
+        <h2>Where I Spend</h2>
       </div>
       <div class="as-of" id="spendAsOf"></div>
     </div>
@@ -1167,38 +968,11 @@
     </div>
   </section>
 
-  <!-- ================= WIDGET 5: WHAT WE CONTRIBUTE ================= -->
-  <section class="widget" id="widget-contribute" data-component="what-we-contribute">
-    <div class="widget-head">
-      <div>
-        <div class="tag">Widget 05 · Contributions</div>
-        <h2>What We Contribute</h2>
-      </div>
-      <div class="as-of" id="contribAsOf"></div>
-    </div>
-
-    <div class="spend-note" id="contribNote"></div>
-
-    <div class="table-scroll">
-      <table class="spend-table" id="contribTable">
-        <thead id="contribThead"></thead>
-        <tbody id="contribTbody"></tbody>
-        <tfoot id="contribTfoot"></tfoot>
-      </table>
-    </div>
-
-    <div class="spend-legend">
-      <span><i class="dot cell"></i> click a month figure to see the individual payments behind it</span>
-      <span><i class="dot over"></i> running above the trailing average</span>
-      <span><i class="dot under"></i> running below the trailing average</span>
-    </div>
-  </section>
-
-  <!-- ================= WIDGET 6: SAVINGS GOALS ================= -->
+  <!-- ================= WIDGET 04: SAVINGS GOALS ================= -->
   <section class="widget" id="widget-savings-goals" data-component="savings-goals">
     <div class="widget-head">
       <div>
-        <div class="tag">Widget 06 · Savings</div>
+        <div class="tag">Widget 04 · Savings</div>
         <h2>Savings Goals</h2>
       </div>
       <div class="as-of" id="savingsGoalsAsOf"></div>
@@ -1211,42 +985,11 @@
     <div class="savings-goals-total" id="savingsGoalsTotal"></div>
   </section>
 
-  <!-- ================= WIDGET 7: NEXT MONTH'S CONTRIBUTION ================= -->
-  <section class="widget" id="widget-forecast" data-component="next-month-contribution">
-    <div class="widget-head">
-      <div>
-        <div class="tag">Widget 07 · Forecast</div>
-        <h2>Next Month's Contribution</h2>
-      </div>
-      <div class="as-of" id="forecastAsOf"></div>
-    </div>
-
-    <div class="spend-note" id="forecastNote"></div>
-
-    <div class="table-scroll">
-      <table class="forecast-table" id="forecastTable">
-        <thead>
-          <tr>
-            <th class="col-cat">Component</th>
-            <th>Basis</th>
-            <th>Split</th>
-            <th class="col-tom">Tom</th>
-            <th class="col-hannah">Hannah</th>
-          </tr>
-        </thead>
-        <tbody id="forecastTbody"></tbody>
-        <tfoot id="forecastTfoot"></tfoot>
-      </table>
-    </div>
-
-    <div class="forecast-strip" id="forecastStrip"></div>
-  </section>
-
-  <!-- ================= WIDGET 8: ROLLING ACTIONS ================= -->
+  <!-- ================= WIDGET 05: ROLLING ACTIONS ================= -->
   <section class="widget" id="widget-actions" data-component="rolling-actions">
     <div class="widget-head">
       <div>
-        <div class="tag">Widget 08 · Actions</div>
+        <div class="tag">Widget 05 · Actions</div>
         <h2>Rolling Actions</h2>
       </div>
       <div class="as-of" id="actionsAsOf"></div>
@@ -1260,11 +1003,35 @@
     </div>
   </section>
 
-  <!-- ================= WIDGET 9: MONTHLY DATA UPDATE ================= -->
+  <!-- ================= WIDGET 06: NET WORTH TRAJECTORY ================= -->
+  <section class="widget" id="widget-trajectory" data-component="net-worth-trajectory">
+    <div class="widget-head">
+      <div>
+        <div class="tag">Widget 06 · Trajectory</div>
+        <h2>Net Worth Trajectory</h2>
+      </div>
+      <div class="as-of" id="trajectoryAsOf"></div>
+    </div>
+
+    <div class="spend-note" id="trajectoryNote"></div>
+
+    <div class="trajectory-chart-wrap" id="trajectoryChartWrap"></div>
+
+    <div class="table-scroll">
+      <table class="spend-table" id="trajectoryTable">
+        <thead id="trajectoryThead"></thead>
+        <tbody id="trajectoryTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="trajectory-strip" id="trajectoryStrip"></div>
+  </section>
+
+  <!-- ================= WIDGET 07: MONTHLY DATA UPDATE ================= -->
   <section class="widget" id="widget-json-import" data-component="monthly-data-update">
     <div class="widget-head">
       <div>
-        <div class="tag">Widget 09 · Update</div>
+        <div class="tag">Widget 07 · Update</div>
         <h2>Monthly Data Update</h2>
       </div>
     </div>
@@ -1272,18 +1039,14 @@
     <div class="spend-note" id="jsonImportNote"></div>
 
     <div class="json-import-body">
-      <textarea id="jsonImportBox" class="json-import-box" spellcheck="false" placeholder='Paste a full household snapshot here, e.g.:
+      <textarea id="jsonImportBox" class="json-import-box" spellcheck="false" placeholder='Paste a full snapshot here, e.g.:
 {
-  "household": { "contributorAName": "Person A", "contributorBName": "Person B" },
-  "principles": [...],
-  "netWorth": { "asOf": "2026-09-24", "assets": [...], "property": {...}, "pensions": {...} },
-  "moneyApproaches": [ { "text": "...", "addedDate": "2026-09-24" } ],
+  "netWorth": { "asOf": "2026-09-24", "assets": [...], "property": {...}, "pensions": { "pots": [...] } },
   "spend": { "months": [...], "categories": [...], "monthly": {...}, "transactions": {...} },
-  "contrib": { "months": [...], "rows": {...}, "excludeMonths": [...] },
   "savingsGoals": [...],
-  "nextMonthConfig": { "additionalItems": [...] },
   "story": { "month": "2026-09", "narrative": ["...", "..."] },
   "actions": [ { "text": "New action raised this month", "raisedMonth": "2026-09" } ],
+  "netWorthHistory": { "months": [...], "entries": { "2026-09": { "assets": 0, "liabilities": 0, "pensions": 0 } } },
   "meta": { "currentAsOfDay": 24 }
 }
 
@@ -1336,28 +1099,21 @@ Only the keys you include get replaced — anything omitted is left as-is.'></te
    from STATE, which starts empty and gets filled in one of two ways:
      1) Automatically, from Firestore, once you sign in with an authorized
         Google account (see the module script at the bottom of this file).
-     2) Manually, by pasting a JSON snapshot into Widget 09 and clicking
+     2) Manually, by pasting a JSON snapshot into Widget 07 and clicking
         "Apply Locally" to preview it, then "Save to Cloud" to persist it.
    ========================================================================= */
 let STATE = {
-  household: { contributorAName: 'Person A', contributorBName: 'Person B' },
-  principles: [],
   netWorth: {
     asOf: null,
     assets: [],
     property: { marketValue: 0, mortgageBalance: 0 },
-    pensions: {
-      personA: { name: '', pots: [] },
-      personB: { name: '', pots: [] }
-    }
+    pensions: { pots: [] }
   },
-  moneyApproaches: [],
   spend: { months: [], categories: [], monthly: {}, transactions: {} },
-  contrib: { months: [], rows: {}, excludeMonths: [] },
   savingsGoals: [],
-  nextMonthConfig: { additionalItems: [] },
   story: { month: null, narrative: [] },
   actions: [],
+  netWorthHistory: { months: [], entries: {} },
   meta: { currentAsOfDay: 1 }
 };
 
@@ -1372,7 +1128,7 @@ const SPEND_GROUPS = [
   {
     id: 'mortgage',
     label: 'Mortgage',
-    note: 'Split 50:50 per household principle — pulled out of the shared budget pool below so it isn\'t counted under the budgetary split, and so Widget 07 can gauge it separately without double-counting.',
+    note: 'Pulled out separately from the ongoing budget pool below so it can be tracked on its own, without skewing that average.',
     categories: [
       'Mortgage/Loan'
     ]
@@ -1380,7 +1136,7 @@ const SPEND_GROUPS = [
   {
     id: 'ongoing',
     label: 'Ongoing Monthly — Budget-able',
-    note: 'Regular, expected spend — split per household principle. This is the figure Widget 07 uses as its "Ongoing Monthly Budget" gauge for next month.',
+    note: 'Regular, expected monthly spend — the core budget line.',
     categories: [
       'Car Finance','Council Tax','Utilities','TV/Subscriptions',
       'Insurance','Bank Fees','Groceries','Fuel/Transport','Dining Out/Takeaway',
@@ -1420,17 +1176,11 @@ const gbp = (n) => {
   return sign + "£" + Math.abs(n).toLocaleString("en-GB", {minimumFractionDigits:0, maximumFractionDigits:0});
 };
 function sum(list){ return (list||[]).reduce((a,b)=>a+Number(b.amount||0),0); }
-function pensionTotal(person){ return sum(person && person.pots); }
 function escapeAttr(s){ return String(s).replace(/"/g,'&quot;'); }
 function escapeHtml(s){ return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]); }
 function formatDate(iso){
   const d = new Date(iso + 'T00:00:00');
   return d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-}
-function splitAmount(amount, ratioA, ratioB){
-  const totalRatio = ratioA + ratioB;
-  if(totalRatio === 0) return { a: 0, b: 0 };
-  return { a: amount * ratioA / totalRatio, b: amount * ratioB / totalRatio };
 }
 function nextMonthOf(monthStr){
   if(!monthStr) return null;
@@ -1445,18 +1195,14 @@ function monthsOpen(raisedMonth, asOfMonth){
   const [ay, am] = asOfMonth.split('-').map(Number);
   return Math.max(0, (ay - ry) * 12 + (am - rm));
 }
-function principleFor(label){
-  return (STATE.principles || []).find(p => p.label === label) || { label, ratioA: 1, ratioB: 1, basis: 'not set yet' };
-}
-
 /* =========================================================================
    Derived values — recomputed from STATE at the start of every render pass.
    ========================================================================= */
 let SPEND_MONTHS = [], CURRENT_MONTH = null, TRAILING_MONTHS = [], CURRENT_AS_OF_DAY = 1;
-let CONTRIB_MONTHS = [], CONTRIB_CURRENT_MONTH = null, CONTRIB_TRAILING_MONTHS = [], CONTRIB_EXCLUDE_MONTHS = [];
+let TRAJECTORY_MONTHS = [];
 
 /* =========================================================================
-   WIDGET 02: Net worth
+   WIDGET 01: Net worth
    ========================================================================= */
 function renderAssetsTile(){
   const nw = STATE.netWorth;
@@ -1501,37 +1247,31 @@ function renderLiabilitiesTile(){
   `;
 }
 
-function buildPersonHTML(person){
+function renderPensions(){
+  const pots = STATE.netWorth.pensions.pots || [];
   let rows = "";
-  (person.pots || []).forEach(pot => {
+  pots.forEach(pot => {
     rows += `
       <div class="pension-row">
         <div class="plabel">${pot.label}</div>
         <div class="pamount">${gbp(pot.amount)}</div>
       </div>`;
   });
-  return `
+  document.getElementById('pensionsPanel').innerHTML = `
     <div class="person">
-      <div class="person-name">${person.name || '—'}</div>
       ${rows}
       <div class="pension-total">
         <div class="plabel">Total</div>
-        <div class="pval">${gbp(pensionTotal(person))}</div>
+        <div class="pval">${gbp(sum(pots))}</div>
       </div>
     </div>`;
-}
-
-function renderPensions(){
-  const nw = STATE.netWorth;
-  document.getElementById('pensionsPanel').innerHTML =
-    buildPersonHTML(nw.pensions.personA) + `<div class="divider"></div>` + buildPersonHTML(nw.pensions.personB);
 }
 
 function renderNetWorth(){
   const nw = STATE.netWorth;
   const assets = sum(nw.assets);
   const equity = nw.property.marketValue - nw.property.mortgageBalance;
-  const pensions = pensionTotal(nw.pensions.personA) + pensionTotal(nw.pensions.personB);
+  const pensions = sum(nw.pensions.pots);
   const total = assets + equity + pensions;
 
   document.getElementById('netWorthValue').textContent = gbp(total);
@@ -1550,82 +1290,7 @@ function renderAll(){
 }
 
 /* =========================================================================
-   WIDGET 01: Principles & agreed approaches to money
-   ========================================================================= */
-function renderPrinciples(){
-  const el = document.getElementById('principlesGrid');
-  const a = STATE.household.contributorAName, b = STATE.household.contributorBName;
-  el.innerHTML = (STATE.principles || []).map(p => {
-    const totalRatio = p.ratioA + p.ratioB;
-    const pctA = totalRatio ? (p.ratioA / totalRatio * 100).toFixed(1) : '–';
-    const pctB = totalRatio ? (p.ratioB / totalRatio * 100).toFixed(1) : '–';
-    return `
-      <div class="principle-card">
-        <div class="p-label">${p.label}</div>
-        <div class="p-ratio">${p.ratioA} : ${p.ratioB}</div>
-        <div class="p-names">${a} : ${b}</div>
-        <div class="p-pct">${a} ${pctA}% · ${b} ${pctB}%</div>
-        <div class="p-basis">${p.basis}</div>
-      </div>`;
-  }).join('');
-}
-
-function renderApproaches(){
-  const list = STATE.moneyApproaches || [];
-  const el = document.getElementById('approachesList');
-  el.innerHTML = list.length === 0
-    ? `<li style="color:var(--text-low); font-size:13px; padding:12px 0;">Nothing added yet.</li>`
-    : list.map((item, i) => `
-      <li class="approach-item">
-        <div>
-          <div class="approach-text">${escapeHtml(item.text)}</div>
-          ${item.addedDate ? `<div class="approach-meta">Added ${formatDate(item.addedDate)}</div>` : ''}
-        </div>
-        <button type="button" class="approach-remove" data-idx="${i}">Remove</button>
-      </li>`).join('');
-
-  el.querySelectorAll('.approach-remove').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      STATE.moneyApproaches.splice(Number(btn.dataset.idx), 1);
-      renderApproaches();
-      await persistApproaches();
-    });
-  });
-}
-
-async function persistApproaches(){
-  const statusEl = document.getElementById('approachStatus');
-  if(typeof window.__saveStateToCloud !== 'function'){
-    statusEl.textContent = 'Kept in this browser only — cloud storage isn\'t connected yet.';
-    statusEl.className = 'json-import-status';
-    return;
-  }
-  statusEl.textContent = 'Saving…';
-  statusEl.className = 'json-import-status';
-  try {
-    await window.__saveStateToCloud(STATE);
-    statusEl.textContent = 'Saved — visible to both of you now.';
-    statusEl.className = 'json-import-status success';
-  } catch(e){
-    statusEl.textContent = 'Save failed: ' + e.message;
-    statusEl.className = 'json-import-status error';
-  }
-}
-
-async function addApproach(){
-  const input = document.getElementById('approachInput');
-  const text = input.value.trim();
-  if(!text) return;
-  STATE.moneyApproaches.push({ text, addedDate: new Date().toISOString().slice(0,10) });
-  input.value = '';
-  renderApproaches();
-  await persistApproaches();
-}
-
-document.getElementById('approachAddBtn').addEventListener('click', addApproach);
-
-/* =========================================================================
-   WIDGET 04: Where We Spend
+   WIDGET 03: Where I Spend
    ========================================================================= */
 function catMonthly(cat, m){ return Number((STATE.spend.monthly[cat] && STATE.spend.monthly[cat][m]) || 0); }
 function rollingAvg(cat){
@@ -1639,7 +1304,7 @@ function renderSpendTable(){
   document.getElementById('spendNote').innerHTML = SPEND_MONTHS.length
     ? (`6-month rolling average is calculated over <b style="color:var(--text-mid)">${monthShort(TRAILING_MONTHS[0])}–${monthShort(TRAILING_MONTHS[TRAILING_MONTHS.length-1])}</b>. ` +
        `<b style="color:var(--text-mid)">${monthLong(CURRENT_MONTH)}</b> is the live month, partial to the ${CURRENT_AS_OF_DAY}${CURRENT_AS_OF_DAY===24?'th':'th'} — compared against that average, not a full month.`)
-    : 'No spend data yet — sign in and load a monthly snapshot via Widget 09 below.';
+    : 'No spend data yet — sign in and load a monthly snapshot via Widget 07 below.';
 
   let headHtml = '<tr><th class="col-cat">Category</th>';
   TRAILING_MONTHS.forEach(m => { headHtml += `<th>${monthShort(m)}</th>`; });
@@ -1750,71 +1415,7 @@ document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeSpendM
 function closeSpendModal(){ document.getElementById('modalOverlay').classList.remove('open'); }
 
 /* =========================================================================
-   Shared: next-month forecast computation
-   ========================================================================= */
-function ongoingBudgetableAvg(){
-  const group = SPEND_GROUPS.find(g => g.id === 'ongoing');
-  return group.categories.reduce((s, cat) => s + rollingAvg(cat), 0);
-}
-
-function computeForecastRows(){
-  const targetMonth = nextMonthOf(CURRENT_MONTH);
-  const budgetPrinciple = principleFor('Monthly Budgetary Spend');
-  const mortgagePrinciple = principleFor('Mortgage Contribution');
-  const savingsPrinciple = principleFor('Savings Contribution');
-
-  const rows = [];
-
-  const budgetAmount = ongoingBudgetableAvg();
-  const budgetSplit = splitAmount(budgetAmount, budgetPrinciple.ratioA, budgetPrinciple.ratioB);
-  rows.push({
-    label: 'Ongoing Monthly Budget',
-    sub: TRAILING_MONTHS.length ? `6-mo avg, ${monthShort(TRAILING_MONTHS[0])}–${monthShort(TRAILING_MONTHS[TRAILING_MONTHS.length-1])}` : 'no data yet',
-    amount: budgetAmount,
-    splitLabel: `${budgetPrinciple.ratioA}:${budgetPrinciple.ratioB}`,
-    tom: budgetSplit.a,
-    hannah: budgetSplit.b
-  });
-
-  const mortgageAmount = catMonthly('Mortgage/Loan', CURRENT_MONTH);
-  const mortgageSplit = splitAmount(mortgageAmount, mortgagePrinciple.ratioA, mortgagePrinciple.ratioB);
-  rows.push({
-    label: 'Mortgage',
-    sub: CURRENT_MONTH ? `latest payment, ${monthShort(CURRENT_MONTH)}` : 'no data yet',
-    amount: mortgageAmount,
-    splitLabel: `${mortgagePrinciple.ratioA}:${mortgagePrinciple.ratioB}`,
-    tom: mortgageSplit.a,
-    hannah: mortgageSplit.b
-  });
-
-  const savingsGoals = computeSavingsGoals();
-  const savingsAmount = savingsGoals.reduce((a,g) => a + g.monthly, 0);
-  const savingsSplit = splitAmount(savingsAmount, savingsPrinciple.ratioA, savingsPrinciple.ratioB);
-  rows.push({
-    label: 'Savings Target',
-    sub: `${savingsGoals.length} goal${savingsGoals.length === 1 ? '' : 's'} — see Widget 06`,
-    amount: savingsAmount,
-    splitLabel: `${savingsPrinciple.ratioA}:${savingsPrinciple.ratioB}`,
-    tom: savingsSplit.a,
-    hannah: savingsSplit.b
-  });
-
-  (STATE.nextMonthConfig.additionalItems || []).forEach(item => {
-    const ra = item.ratioA !== undefined ? item.ratioA : 1;
-    const rb = item.ratioB !== undefined ? item.ratioB : 1;
-    const split = splitAmount(item.amount, ra, rb);
-    rows.push({ label: item.label, sub: 'added this month', amount: item.amount, splitLabel: `${ra}:${rb}`, tom: split.a, hannah: split.b });
-  });
-
-  const totalAmount = rows.reduce((a,r) => a + r.amount, 0);
-  const totalTom = rows.reduce((a,r) => a + r.tom, 0);
-  const totalHannah = rows.reduce((a,r) => a + r.hannah, 0);
-
-  return { targetMonth, rows, totalAmount, totalTom, totalHannah };
-}
-
-/* =========================================================================
-   WIDGET 06: Savings goals — shared computation
+   WIDGET 04: Savings goals — shared computation
    ========================================================================= */
 function currentBalanceFor(assetLabel){
   const asset = (STATE.netWorth.assets || []).find(a => a.label === assetLabel);
@@ -1844,13 +1445,11 @@ function computeSavingsGoals(){
 
 function renderSavingsGoals(){
   const goals = computeSavingsGoals();
-  const savingsPrinciple = principleFor('Savings Contribution');
-  const a = STATE.household.contributorAName, b = STATE.household.contributorBName;
 
   document.getElementById('savingsGoalsAsOf').textContent = 'Contributions start ' + monthLong(nextMonthOf(CURRENT_MONTH));
   document.getElementById('savingsGoalsNote').innerHTML =
-    `Required monthly contribution assumes you start next month and split ${savingsPrinciple.ratioA}:${savingsPrinciple.ratioB} per the Savings principle. ` +
-    `Current balances are pulled from Widget 02 — update the snapshot there and these recalculate automatically.`;
+    `Required monthly contribution assumes you start next month. ` +
+    `Current balances are pulled from Widget 01 — update the snapshot there and these recalculate automatically.`;
 
   document.getElementById('savingsGoalsList').innerHTML = goals.map(g => {
     if(!g.hasTarget){
@@ -1864,7 +1463,6 @@ function renderSavingsGoals(){
           <div class="goal-meta"><span>Not included in the monthly savings requirement below</span></div>
         </div>`;
     }
-    const split = splitAmount(g.monthly, savingsPrinciple.ratioA, savingsPrinciple.ratioB);
     const targetDateFormatted = new Date(g.targetDate + 'T00:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
     return `
       <div class="goal-card">
@@ -1878,142 +1476,21 @@ function renderSavingsGoals(){
           <span>Target date: <b>${targetDateFormatted}</b></span>
           <span>${g.monthsLeft} month${g.monthsLeft===1?'':'s'} remaining</span>
           <span>Required monthly: <b>${gbp(g.monthly)}</b></span>
-          <span class="split">split <span class="tom">${a} ${gbp(split.a)}</span> · <span class="hannah">${b} ${gbp(split.b)}</span></span>
         </div>
       </div>`;
   }).join('');
 
   const totalMonthly = goals.reduce((a,g) => a + g.monthly, 0);
-  const totalSplit = splitAmount(totalMonthly, savingsPrinciple.ratioA, savingsPrinciple.ratioB);
   document.getElementById('savingsGoalsTotal').innerHTML = `
     <div>
       <div class="label">Total Monthly Savings Required</div>
-      <div class="breakdown">Feeds directly into Widget 07's Savings Target line — <b>${a} ${gbp(totalSplit.a)}</b> · <b>${b} ${gbp(totalSplit.b)}</b></div>
     </div>
     <div class="value">${gbp(totalMonthly)}</div>
   `;
 }
 
 /* =========================================================================
-   WIDGET 05: What We Contribute
-   ========================================================================= */
-function contribMonthly(row, m){ return Number((STATE.contrib.rows[row] && STATE.contrib.rows[row].monthly[m]) || 0); }
-
-function renderContribTable(){
-  const forecast = computeForecastRows();
-
-  document.getElementById('contribAsOf').textContent = CONTRIB_CURRENT_MONTH ? ('Snapshot as of ' + CURRENT_AS_OF_DAY + ' ' + monthLong(CONTRIB_CURRENT_MONTH)) : '';
-  document.getElementById('contribNote').innerHTML = CONTRIB_MONTHS.length
-    ? (`Regular payments are counted toward the month they were actually <b style="color:var(--text-mid)">for</b>, not the month they landed in. ` +
-       `${CONTRIB_EXCLUDE_MONTHS.length ? CONTRIB_EXCLUDE_MONTHS.map(monthShort).join(' and ') + ' excluded from this view.' : ''}`)
-    : 'No contribution data yet — sign in and load a monthly snapshot via Widget 09 below.';
-
-  let headHtml = '<tr><th class="col-cat">Row</th>';
-  CONTRIB_MONTHS.forEach(m => { headHtml += `<th>${monthShort(m)}</th>`; });
-  headHtml += `<th class="col-current">${monthShort(forecast.targetMonth)} (forecast)</th></tr>`;
-  document.getElementById('contribThead').innerHTML = headHtml;
-
-  const rowNames = Object.keys(STATE.contrib.rows || {});
-  let bodyHtml = '';
-  const columnTotals = {};
-  CONTRIB_MONTHS.forEach(m => columnTotals[m] = 0);
-
-  rowNames.forEach(row => {
-    bodyHtml += `<tr><td class="col-cat">${row}</td>`;
-    CONTRIB_MONTHS.forEach(m => {
-      const v = contribMonthly(row, m);
-      columnTotals[m] += v;
-      bodyHtml += `<td class="cell-click" data-row="${escapeAttr(row)}" data-month="${m}">${gbp(v)}</td>`;
-    });
-    bodyHtml += `<td>–</td></tr>`;
-  });
-  document.getElementById('contribTbody').innerHTML = bodyHtml;
-
-  let footHtml = '<tr><td class="col-cat">Total Contributed</td>';
-  CONTRIB_MONTHS.forEach(m => { footHtml += `<td>${gbp(columnTotals[m])}</td>`; });
-  footHtml += `<td>–</td></tr>`;
-  footHtml += `<tr><td class="col-cat">Next Month's Contribution</td>`;
-  CONTRIB_MONTHS.forEach(() => { footHtml += `<td>–</td>`; });
-  footHtml += `<td class="col-current">${STATE.household.contributorAName} ${gbp(forecast.totalTom)} · ${STATE.household.contributorBName} ${gbp(forecast.totalHannah)}</td></tr>`;
-  document.getElementById('contribTfoot').innerHTML = footHtml;
-
-  document.querySelectorAll('#contribTbody .cell-click').forEach(td => {
-    td.addEventListener('click', () => openContribModal(td.dataset.row, td.dataset.month));
-  });
-}
-
-function openContribModal(row, month){
-  const items = (STATE.contrib.rows[row] && STATE.contrib.rows[row].transactions[month]) || [];
-  document.getElementById('modalCat').textContent = row;
-  const isCurrent = month === CONTRIB_CURRENT_MONTH;
-  document.getElementById('modalMonth').textContent = monthLong(month) + (isCurrent ? ` — most recent month in this view` : '');
-
-  const listEl = document.getElementById('modalList');
-  listEl.innerHTML = items.length === 0
-    ? `<div class="modal-empty">Nothing recorded under "${row}" for ${monthShort(month)}.</div>`
-    : items.map(it => `
-      <div class="modal-row">
-        <div>
-          <div class="mdesc">${escapeHtml(it.desc)}</div>
-          <span class="mdate">${formatDate(it.date)}</span>
-        </div>
-        <div class="mamt">${gbp(it.amount)}</div>
-      </div>
-    `).join('');
-
-  const total = items.reduce((a,b) => a + Number(b.amount||0), 0);
-  document.getElementById('modalTotal').innerHTML = `<span>Total</span><b>${gbp(total)}</b>`;
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-/* =========================================================================
-   WIDGET 07: Next month's forecast
-   ========================================================================= */
-function renderForecast(){
-  const { targetMonth, rows, totalAmount, totalTom, totalHannah } = computeForecastRows();
-  const a = STATE.household.contributorAName, b = STATE.household.contributorBName;
-
-  document.getElementById('forecastAsOf').textContent = 'Projecting ' + monthLong(targetMonth);
-  document.getElementById('forecastNote').innerHTML = CURRENT_MONTH
-    ? (`Run this after ${monthLong(CURRENT_MONTH)} closes out. Ongoing Monthly Budget uses the same rolling average as Widget 04 — it'll shift forward automatically once a new month's data is added.`)
-    : 'Waiting on spend data before this can project anything.';
-
-  document.getElementById('forecastTbody').innerHTML = rows.map(r => `
-    <tr>
-      <td class="col-cat">${r.label}<span class="row-sub">${r.sub}</span></td>
-      <td>${gbp(r.amount)}</td>
-      <td class="col-split">${r.splitLabel}</td>
-      <td class="col-tom">${gbp(r.tom)}</td>
-      <td class="col-hannah">${gbp(r.hannah)}</td>
-    </tr>
-  `).join('');
-
-  document.getElementById('forecastTfoot').innerHTML = `
-    <tr>
-      <td class="col-cat">Total Due</td>
-      <td>${gbp(totalAmount)}</td>
-      <td></td>
-      <td class="col-tom">${gbp(totalTom)}</td>
-      <td class="col-hannah">${gbp(totalHannah)}</td>
-    </tr>
-  `;
-
-  document.getElementById('forecastStrip').innerHTML = `
-    <div class="forecast-person tom">
-      <div class="label">${a} to contribute</div>
-      <div class="value">${gbp(totalTom)}</div>
-      <div class="household">for ${monthLong(targetMonth)}</div>
-    </div>
-    <div class="forecast-person hannah">
-      <div class="label">${b} to contribute</div>
-      <div class="value">${gbp(totalHannah)}</div>
-      <div class="household">for ${monthLong(targetMonth)}</div>
-    </div>
-  `;
-}
-
-/* =========================================================================
-   WIDGET 03: Story of the month
+   WIDGET 02: Story of the month
    ========================================================================= */
 function renderStoryOfMonth(){
   const m = STATE.story.month;
@@ -2044,7 +1521,7 @@ function renderStoryOfMonth(){
 }
 
 /* =========================================================================
-   WIDGET 08: Rolling actions
+   WIDGET 05: Rolling actions
    ========================================================================= */
 function renderRollingActions(){
   document.getElementById('actionsAsOf').textContent = 'Updated ' + monthLong(STATE.story.month);
@@ -2088,12 +1565,93 @@ async function persistActionsChange(){
   statusEl.className = 'json-import-status';
   try {
     await window.__saveStateToCloud(STATE);
-    statusEl.textContent = 'Saved — visible to both of you now.';
+    statusEl.textContent = 'Saved to the cloud.';
     statusEl.className = 'json-import-status success';
   } catch(e){
     statusEl.textContent = 'Save failed: ' + e.message;
     statusEl.className = 'json-import-status error';
   }
+}
+
+/* =========================================================================
+   WIDGET 06: Net worth trajectory
+   ========================================================================= */
+function trajectoryEntry(m){
+  const e = STATE.netWorthHistory.entries[m] || {};
+  const assets = Number(e.assets || 0);
+  const liabilities = Number(e.liabilities || 0);
+  const pensions = Number(e.pensions || 0);
+  return { assets, liabilities, pensions, netWorth: assets - liabilities + pensions };
+}
+
+function renderNetWorthTrajectory(){
+  const months = TRAJECTORY_MONTHS;
+  const asOfEl = document.getElementById('trajectoryAsOf');
+  const noteEl = document.getElementById('trajectoryNote');
+  const chartEl = document.getElementById('trajectoryChartWrap');
+  const theadEl = document.getElementById('trajectoryThead');
+  const tbodyEl = document.getElementById('trajectoryTbody');
+  const stripEl = document.getElementById('trajectoryStrip');
+
+  if(months.length === 0){
+    asOfEl.textContent = '';
+    noteEl.innerHTML = 'No history yet — record a month\'s totals in <code>netWorthHistory</code> via Widget 07 below each time you update your net worth snapshot.';
+    chartEl.innerHTML = `<div class="trajectory-empty">Nothing to chart yet.</div>`;
+    theadEl.innerHTML = '';
+    tbodyEl.innerHTML = '';
+    stripEl.innerHTML = '';
+    return;
+  }
+
+  asOfEl.textContent = 'Through ' + monthLong(months[months.length-1]);
+  noteEl.innerHTML = 'Tracks assets, liabilities and pensions month to month — a running record of where things stand, not a forecast.';
+
+  const points = months.map(m => ({ m, ...trajectoryEntry(m) }));
+
+  const W = 880, H = 220, PAD = 32;
+  const values = points.map(p => p.netWorth);
+  const minV = Math.min(0, ...values), maxV = Math.max(0, ...values);
+  const range = (maxV - minV) || 1;
+  const xAt = i => PAD + (i * (W - PAD*2) / Math.max(1, points.length - 1));
+  const yAt = v => H - PAD - ((v - minV) / range) * (H - PAD*2);
+  const zeroY = yAt(0);
+
+  const linePts = points.map((p,i) => `${xAt(i)},${yAt(p.netWorth)}`).join(' ');
+  const areaPts = `${xAt(0)},${zeroY} ${linePts} ${xAt(points.length-1)},${zeroY}`;
+  const dots = points.map((p,i) => `<circle cx="${xAt(i)}" cy="${yAt(p.netWorth)}" r="3" style="fill:var(--brass);"></circle>`).join('');
+  const labels = points.map((p,i) => `<text x="${xAt(i)}" y="${H-8}" font-size="9" text-anchor="middle" style="fill:var(--text-low); font-family:'IBM Plex Mono', monospace;">${monthShort(p.m)}</text>`).join('');
+
+  chartEl.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+      <line x1="${PAD}" y1="${zeroY}" x2="${W-PAD}" y2="${zeroY}" style="stroke:var(--line-strong); stroke-width:1; stroke-dasharray:3,3;"></line>
+      <polygon points="${areaPts}" style="fill:var(--sage); opacity:0.12;"></polygon>
+      <polyline points="${linePts}" fill="none" style="stroke:var(--sage); stroke-width:2;"></polyline>
+      ${dots}
+      ${labels}
+    </svg>`;
+
+  theadEl.innerHTML = '<tr><th class="col-cat">Month</th><th>Assets</th><th>Liabilities</th><th>Pensions</th><th class="col-current">Net Worth</th></tr>';
+  tbodyEl.innerHTML = points.map(p => `
+    <tr>
+      <td class="col-cat">${monthShort(p.m)}</td>
+      <td>${gbp(p.assets)}</td>
+      <td>${gbp(p.liabilities)}</td>
+      <td>${gbp(p.pensions)}</td>
+      <td class="col-current">${gbp(p.netWorth)}</td>
+    </tr>`).join('');
+
+  const latest = points[points.length-1];
+  const first = points[0];
+  const change = latest.netWorth - first.netWorth;
+  const changeClass = change > 0 ? 'up' : (change < 0 ? 'down' : '');
+  const arrow = change > 0 ? '▲' : (change < 0 ? '▼' : '–');
+  stripEl.innerHTML = `
+    <div>
+      <div class="label">Net Worth</div>
+      <div class="breakdown">Since ${monthShort(first.m)} <b>${arrow} ${gbp(Math.abs(change))}</b></div>
+    </div>
+    <div class="value ${changeClass}">${gbp(latest.netWorth)}</div>
+  `;
 }
 
 /* =========================================================================
@@ -2108,31 +1666,25 @@ function deriveAndRenderAll(){
   TRAILING_MONTHS = SPEND_MONTHS.length ? SPEND_MONTHS.slice(Math.max(0, SPEND_MONTHS.length-7), SPEND_MONTHS.length-1) : [];
   CURRENT_AS_OF_DAY = STATE.meta.currentAsOfDay || 1;
 
-  CONTRIB_EXCLUDE_MONTHS = STATE.contrib.excludeMonths || [];
-  CONTRIB_MONTHS = (STATE.contrib.months || []).filter(m => !CONTRIB_EXCLUDE_MONTHS.includes(m));
-  CONTRIB_CURRENT_MONTH = CONTRIB_MONTHS.length ? CONTRIB_MONTHS[CONTRIB_MONTHS.length-1] : null;
-  CONTRIB_TRAILING_MONTHS = CONTRIB_MONTHS.slice(0, Math.max(0, CONTRIB_MONTHS.length-1));
+  TRAJECTORY_MONTHS = STATE.netWorthHistory.months || [];
 
-  renderPrinciples();
-  renderApproaches();
   renderAll();
   renderSpendTable();
-  renderContribTable();
-  renderForecast();
   renderSavingsGoals();
   renderStoryOfMonth();
   renderRollingActions();
+  renderNetWorthTrajectory();
 }
 
 /* =========================================================================
-   WIDGET 09: Monthly data update — apply locally, save to cloud, or copy
+   WIDGET 07: Monthly data update — apply locally, save to cloud, or copy
    the current state back out as JSON.
    ========================================================================= */
-const STATE_KEYS = ['household','principles','netWorth','moneyApproaches','spend','contrib','savingsGoals','nextMonthConfig','story','actions','meta'];
+const STATE_KEYS = ['netWorth','spend','savingsGoals','story','actions','netWorthHistory','meta'];
 
-// spend and contrib are month-by-month histories, not point-in-time snapshots — merging
-// (rather than replacing) lets a monthly update JSON contain just the new month instead
-// of the whole history every time. Everything else in STATE_KEYS is a current-state
+// spend and netWorthHistory are month-by-month histories, not point-in-time snapshots —
+// merging (rather than replacing) lets a monthly update JSON contain just the new month
+// instead of the whole history every time. Everything else in STATE_KEYS is a current-state
 // snapshot (net worth, goals, etc.) where a full replace is the right behaviour.
 function mergeMonthsArray(existing, incoming){
   const set = new Set(existing || []);
@@ -2161,14 +1713,11 @@ function mergeSpend(target, incoming){
   }
 }
 
-function mergeContrib(target, incoming){
+function mergeNetWorthHistory(target, incoming){
   if(incoming.months) target.months = mergeMonthsArray(target.months, incoming.months);
-  if(incoming.excludeMonths) target.excludeMonths = incoming.excludeMonths;
-  if(incoming.rows){
-    Object.keys(incoming.rows).forEach(row => {
-      target.rows[row] = target.rows[row] || { monthly: {}, transactions: {} };
-      if(incoming.rows[row].monthly) Object.assign(target.rows[row].monthly, incoming.rows[row].monthly);
-      if(incoming.rows[row].transactions) Object.assign(target.rows[row].transactions, incoming.rows[row].transactions);
+  if(incoming.entries){
+    Object.keys(incoming.entries).forEach(m => {
+      target.entries[m] = { ...(target.entries[m] || {}), ...incoming.entries[m] };
     });
   }
 }
@@ -2178,7 +1727,7 @@ function applyJsonToState(data){
   STATE_KEYS.forEach(k => {
     if(data[k] === undefined) return;
     if(k === 'spend') mergeSpend(STATE.spend, data.spend);
-    else if(k === 'contrib') mergeContrib(STATE.contrib, data.contrib);
+    else if(k === 'netWorthHistory') mergeNetWorthHistory(STATE.netWorthHistory, data.netWorthHistory);
     else STATE[k] = data[k];
     applied.push(k);
   });
@@ -2244,7 +1793,7 @@ document.getElementById('cloudSaveBtn').addEventListener('click', saveStateToClo
 document.getElementById('copyStateBtn').addEventListener('click', copyStateAsJson);
 document.getElementById('jsonImportNote').innerHTML =
   `Paste a snapshot and click <b style="color:var(--text-mid)">Apply Locally</b> to preview it in your browser only, then ` +
-  `<b style="color:var(--text-mid)">Save to Cloud</b> once you're happy, to persist it to Firestore for both of you. ` +
+  `<b style="color:var(--text-mid)">Save to Cloud</b> once you're happy, to persist it to Firestore. ` +
   `<b style="color:var(--text-mid)">Copy Current Data as JSON</b> grabs what's currently loaded (e.g. to edit offline and re-paste). Only the keys you include get replaced — anything omitted is left as-is.`;
 
 /* =========================================================================
@@ -2257,7 +1806,7 @@ window.__applyCloudState = function(cloudData){
   const s = document.getElementById('cloudSyncStatus');
   if(s) s.textContent = cloudData
     ? 'Loaded from cloud.'
-    : 'No cloud data yet — paste your household snapshot into Widget 09 below, then click "Save to Cloud" to initialize it.';
+    : 'No cloud data yet — paste your financial snapshot into Widget 07 below, then click "Save to Cloud" to initialize it.';
 };
 window.__cloudLoadError = function(err){
   deriveAndRenderAll();

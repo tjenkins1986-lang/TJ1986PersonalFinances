@@ -7,10 +7,22 @@ behind Google sign-in, backed by a private Firestore database.
 This started as a fork of [21ForthCresFinance](https://github.com/tjenkins1986-lang/21ForthCresFinance),
 a joint household version of the same app. The two are intentionally
 **separate repos with separate Firebase projects** — no shared data,
-no shared sign-in allowlist. This copy still has some of that joint-household
-shape (a `principles`/`contrib` split between two people, "Widget 05: What
-We Contribute", etc.) that doesn't apply to a personal tracker — refining
-that down to a single-person shape is in-progress work, not finished yet.
+no shared sign-in allowlist. The joint-household shape (a two-person
+contribution split, "What We Contribute", a shared forecast widget) has
+been stripped out in favour of a single-person layout — see the widget
+list below.
+
+## Widgets
+
+1. **Net Worth Summary** — assets, property equity, pensions (a single
+   flat list of pots, no per-person split).
+2. **Story of the Month** — a short written recap plus key spend numbers.
+3. **Where I Spend** — category spend vs. a 6-month rolling average.
+4. **Savings Goals** — progress and required monthly contribution per goal.
+5. **Rolling Actions** — a standing, checkable to-do list.
+6. **Net Worth Trajectory** — a month-by-month chart and table of assets,
+   liabilities, pensions and net worth over time.
+7. **Monthly Data Update** — the JSON paste/cloud-sync panel.
 
 ## Why there's no data in this repo
 
@@ -92,20 +104,20 @@ Once the site is live and Firebase is wired up:
 1. Open the site and sign in with Google.
 2. You'll see an empty dashboard with a note that there's no cloud data
    yet.
-3. Scroll to **Widget 09 · Monthly Data Update**, paste your real data
+3. Scroll to **Widget 07 · Monthly Data Update**, paste your real data
    (kept locally, never committed here) into the box, and click
    **Apply Locally** to preview it.
 4. If it looks right, click **Save to Cloud**.
 5. Delete or securely store the local seed file — it's no longer needed
    day-to-day; the JSON textarea + "Copy Current Data as JSON" button in
-   Widget 09 is how you'll read/write full snapshots going forward, and
+   Widget 07 is how you'll read/write full snapshots going forward, and
    the data itself now lives in Firestore.
 
 ## Updating data each month
 
-Widget 09 (**Monthly Data Update**) accepts a JSON object with any of
+Widget 07 (**Monthly Data Update**) accepts a JSON object with any of
 these top-level keys — only the keys you include get replaced (or, for
-`spend`/`contrib`, merged in), everything else is left as-is. See
+`spend`/`netWorthHistory`, merged in), everything else is left as-is. See
 `DATA-FORMAT.md` for the full schema.
 
 ## Local testing
