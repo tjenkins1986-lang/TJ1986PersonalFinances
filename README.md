@@ -152,13 +152,6 @@ static file server locally (e.g. `python3 -m http.server`) and visiting
 `http://localhost:8000/personal-finance-tracker.html` will let you test
 the full sign-in flow before it's live on GitHub Pages.
 
-## Known limitation
-
-Widget 03's per-transaction "Move" / "Delete" controls are a preview-only
-UI stub — they don't write anywhere yet (see `DATA-FORMAT.md`'s note on
-this). Recategorising a transaction today means editing your source data
-and repasting that month's `spend` via Widget 07.
-
 ## Architecture notes
 
 - **Hosting:** GitHub Pages, deployed via GitHub Actions, static files

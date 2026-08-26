@@ -226,11 +226,17 @@ would be dropping itemisation on old months while keeping the monthly
 totals — the totals are what every calculation actually uses; individual
 transactions only feed the drill-down panel.
 
-## Known limitation: per-transaction recategorise/delete
+## Recategorising or deleting a transaction in-app
 
-Widget 03's drill-down panel has a "Move" / "Delete — nets off elsewhere"
-UI on each transaction, but it's currently a **preview-only stub** — it
-logs what it would do to the console and shows a note, but doesn't
-change any data. To actually recategorise or remove a transaction today,
-edit it in your source data and repaste the affected month's `spend` via
-Widget 07.
+Widget 03's drill-down panel (double-click a month cell) has a "Move" /
+"Delete — nets off elsewhere" option on each transaction, reached by
+double-clicking the row. **Move** shifts it to a different category in
+the same month (updating both `monthly` and `transactions` for the old
+and new category); **Delete** removes it entirely (for something that
+turns out to net off elsewhere and shouldn't count as personal spend).
+Both save to Firestore immediately — there's no separate confirm step
+and no "Apply Locally" preview for this path, unlike a Widget 07 paste.
+If cloud storage isn't connected, the change is still applied locally
+and a note says so; use **Save to Cloud** in Widget 07 to persist once
+it's connected. The status line under the header reports the outcome
+of each move/delete, including if the cloud write fails.

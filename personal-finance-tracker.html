@@ -857,10 +857,8 @@ function renderWidget03(){
   const ALL_CATEGORIES = allGroups.flatMap(g => g.cats);
   let ddContext = null; // { cat, month, items }
 
-  window.openDrilldown = function(cat, month){
-    const items = (transactions[cat] && transactions[cat][month]) || [];
-    ddContext = { cat, month, items };
-    const panel = document.getElementById("drilldown");
+  function renderDrilldownContents(){
+    const { cat, month, items } = ddContext;
     document.getElementById("ddTitle").innerHTML =
       `${escHtml(cat)} <span>· ${MONTH_LABELS[month]} · ${items.length} transaction${items.length===1?'':'s'} · ${fmt2(items.reduce((s,i)=>s+i.amount,0))}</span>`;
     document.getElementById("ddRows").innerHTML = items.length
@@ -871,22 +869,25 @@ function renderWidget03(){
             <span class="dd-amt">${fmt2(i.amount)}</span>
           </div>`).join('')
       : `<div class="dd-empty">No transactions recorded for this category/month.</div>`;
+  }
+
+  window.openDrilldown = function(cat, month, opts){
+    const items = (transactions[cat] && transactions[cat][month]) || [];
+    ddContext = { cat, month, items };
+    renderDrilldownContents();
+    const panel = document.getElementById("drilldown");
     panel.classList.add("open");
-    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    if (!(opts && opts.skipScroll)){
+      panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   };
   window.closeDrilldown = function(){ document.getElementById("drilldown").classList.remove("open"); };
 
-  // ---- recategorise / delete: UI stubs only. Neither writes anywhere yet.
-  // Move  -> wire to a Firestore transaction that removes the item from
-  //          spend.transactions[oldCat][month]/spend.monthly[oldCat][month]
-  //          and adds it to the new category/month.
-  // Delete -> for transactions that turn out to be costs fronted personally
-  //          that net off once moved/reimbursed elsewhere — wire to a
-  //          Firestore transaction that removes the item from
-  //          spend.transactions[cat][month] and subtracts it from
-  //          spend.monthly[cat][month].
-  // (Full-snapshot Save to Cloud in Widget 07 IS wired up — this per-row
-  // move/delete UI is a preview of a future feature, not that mechanism.)
+  // ---- recategorise / delete: mutate monthly + transactions in place, then
+  // refresh every widget and persist the full snapshot to Firestore (same
+  // save path as Widget 07's "Save to Cloud"). The drill-down is closed and
+  // reopened against the fresh post-render state so idx-based row clicks
+  // stay correct for a second edit without needing to close it by hand.
   window.openRecategorise = function(idx, evt){
     document.querySelectorAll('.dd-recat').forEach(el => el.remove());
     const item = ddContext.items[idx];
@@ -900,21 +901,58 @@ function renderWidget03(){
       <button onclick="confirmRecategorise(${idx})">Move</button>
       <button onclick="confirmDelete(${idx})" class="danger">Delete — nets off elsewhere</button>
       <button onclick="this.closest('.dd-recat').remove()">Cancel</button>
-      <span class="dd-recat-note">Preview only — not wired to Firestore yet, nothing is saved.</span>
+      <span class="dd-recat-note">Moving/deleting saves to Firestore immediately — there's no separate confirm step.</span>
     `;
     evt.currentTarget.insertAdjacentElement('afterend', panel);
   };
-  window.confirmRecategorise = function(idx){
+
+  async function persistTransactionEdit(cat, month, resultMsg){
+    const cs = document.getElementById('cloudStatus');
+    if (typeof window.__saveStateToCloud !== 'function'){
+      if (cs) cs.textContent = resultMsg + ' Kept in this browser only — cloud storage isn\'t connected.';
+      return;
+    }
+    if (cs) cs.textContent = resultMsg + ' Saving to cloud…';
+    try {
+      await window.__saveStateToCloud(currentStateSnapshot());
+      if (cs) cs.textContent = resultMsg + ' Saved to cloud.';
+    } catch(e){
+      if (cs) cs.textContent = resultMsg + ' Cloud save failed: ' + e.message + ' (kept locally — retry, or use Save to Cloud in Widget 07).';
+    }
+  }
+
+  window.confirmRecategorise = async function(idx){
     const newCat = document.getElementById('recatSelect').value;
-    const note = document.getElementById('recatSelect').closest('.dd-recat').querySelector('.dd-recat-note');
-    note.textContent = `Would move to "${newCat}" — stub only, no data changed. Wire to Firestore in a future update.`;
-    console.log('[recategorise stub]', ddContext.items[idx], '->', newCat);
+    const { cat, month } = ddContext;
+    if (newCat === cat){
+      document.getElementById('recatSelect').closest('.dd-recat').querySelector('.dd-recat-note').textContent = 'Already in that category — nothing to move.';
+      return;
+    }
+    const item = transactions[cat]?.[month]?.[idx];
+    if (!item) return;
+    transactions[cat][month].splice(idx, 1);
+    monthly[cat][month] = Math.max(0, (monthly[cat][month] || 0) - item.amount);
+    transactions[newCat] = transactions[newCat] || {};
+    transactions[newCat][month] = transactions[newCat][month] || [];
+    transactions[newCat][month].push(item);
+    monthly[newCat] = monthly[newCat] || {};
+    monthly[newCat][month] = (monthly[newCat][month] || 0) + item.amount;
+
+    renderAll();
+    window.openDrilldown(cat, month, { skipScroll: true });
+    await persistTransactionEdit(cat, month, `Moved "${item.desc.slice(0,28)}" to ${newCat}.`);
   };
-  window.confirmDelete = function(idx){
-    const panel = document.querySelector('.dd-recat');
-    const note = panel.querySelector('.dd-recat-note');
-    note.textContent = `Would remove this transaction from spend entirely (treated as a cost netting off elsewhere) — stub only, no data changed.`;
-    console.log('[delete stub]', ddContext.items[idx]);
+
+  window.confirmDelete = async function(idx){
+    const { cat, month } = ddContext;
+    const item = transactions[cat]?.[month]?.[idx];
+    if (!item) return;
+    transactions[cat][month].splice(idx, 1);
+    monthly[cat][month] = Math.max(0, (monthly[cat][month] || 0) - item.amount);
+
+    renderAll();
+    window.openDrilldown(cat, month, { skipScroll: true });
+    await persistTransactionEdit(cat, month, `Removed "${item.desc.slice(0,28)}" from ${cat}.`);
   };
 }
 
