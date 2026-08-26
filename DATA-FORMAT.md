@@ -1,118 +1,100 @@
-# Monthly Snapshot — JSON Format Reference
+# DATA-FORMAT.md — Ledger JSON Schema
 
-This is the exact shape the app expects when you paste a snapshot into
-**Widget 07 · Monthly Data Update** in `personal-finance-tracker.html`.
-Give this file to whatever process generates your monthly JSON (e.g. a
-Claude conversation fed your bank statements) so its output loads cleanly.
-
-## How loading works
-
-- Paste JSON into the Widget 07 box, click **Apply Locally** to preview
-  in your browser only, then **Save to Cloud** to make it live.
-- **Partial updates are fine, and work two different ways depending on
-  the key:**
-  - `spend`, `netWorthHistory`, and `income` are **merged**, not
-    replaced. Include only the new month's data and it's added alongside
-    everything already there — existing months/categories you don't
-    mention are left untouched. You never need to resend the full
-    history.
-  - Every other key (`netWorth`, `savingsGoals`, `story`, `actions`) is a
-    **full replace** if included at all — it represents current state,
-    not a history, so send the complete current value of that key, not a
-    delta. A typical monthly update only needs `netWorth`, `spend`,
-    `netWorthHistory`, `income`, `story`, and `actions`; `savingsGoals`
-    changes rarely enough to just omit.
-  - Any key you omit entirely is left exactly as it was.
-- Every number is a plain JSON number — no `£` signs, no commas
-  (`1234.56`, not `"£1,234.56"`).
-- Every month is `"YYYY-MM"` (e.g. `"2026-09"`). Every date is
-  `"YYYY-MM-DD"` (e.g. `"2026-09-03"`).
-- The **latest** month present across `spend.monthly` after merging is
-  treated as "the current month" in Widget 03 (drives the running-average
-  window), so just include the new month you want to add.
-- Unrecognised top-level keys are ignored (and called out in the status
-  message after **Apply Locally**), not an error — a small guard against
-  typos silently doing nothing.
+This is the contract between the monthly data-entry conversation (see
+PROJECT-INSTRUCTIONS.md in your Claude Project knowledge — it isn't
+committed to this repo) and the app (`personal-finance-tracker.html`).
+Every field name here matches a variable name in the app's script
+exactly — if you rename something here, rename it in the code too.
 
 ## Top-level keys
 
-```json
-{
-  "netWorth": { ... },
-  "spend": { ... },
-  "income": { ... },
-  "savingsGoals": [ ... ],
-  "story": { ... },
-  "actions": [ ... ],
-  "netWorthHistory": { ... }
-}
-```
+| Key | Behaviour | Feeds |
+|---|---|---|
+| `netWorth` | **Full replace** | Widget 01, Widget 06 (balances by label) |
+| `netWorthHistory` | **Merge** — new months only | Widget 01 (delta), Widget 04 |
+| `spend` | **Merge** — new months only | Widget 03, Widget 05 (outgoings) |
+| `income` | **Merge** — new months only | Widget 05 |
+| `story` | **Full replace** | Widget 02 |
+| `actions` | **Full replace** (carry forward + amend) | Widget 02 |
+| `savingsGoals` | **Full replace** (rare) | Widget 06 |
+| `meta` | **Full replace** | Widget 03's partial-month note |
 
-### `netWorth`
+"Merge" means: only the months present in the incoming JSON are touched;
+every other month already stored is left exactly as it was. This is
+implemented in `mergeIncoming()` in `personal-finance-tracker.html` — see
+that function if the merge behaviour ever needs to change.
+
+Any top-level key not in this table is ignored (and called out in the
+status message after **Apply Locally**) rather than erroring — a guard
+against typos silently doing nothing.
+
+---
+
+## `netWorth`
 ```json
 {
   "asOf": "2026-09-24",
   "assets": [
-    { "label": "Current Account", "amount": 185.18 },
-    { "label": "Rainy Day Pot", "amount": 1531.00 }
+    { "label": "Investment Account", "amount": 3200.00 },
+    { "label": "Everyday Saver", "amount": 1500.00 }
   ],
   "liabilities": [
-    { "label": "Credit Card", "amount": 1344.50 },
-    { "label": "Personal Loan", "amount": 10363.00 }
+    { "label": "Credit Card", "amount": 1300.00 }
   ],
   "pensions": {
-    "pots": [ { "label": "Workplace Pension", "amount": 315820.00 } ]
+    "pots": [
+      { "label": "SIPP", "amount": 6000.00 }
+    ]
   }
 }
 ```
-Full replace. `asOf` drives the "AS OF" label in the header — set it to
-the date you pulled the figures. Asset `label`s matter beyond display:
-**Widget 06's savings goals link to an asset by matching its `label`
-exactly** (see `savingsGoals` below), so keep account labels stable month
-to month rather than renaming them. `pensions.pots` and `liabilities` are
-both flat lists — one entry per pot/debt, no split between people. Net
-worth is computed as `assets + pensions − liabilities` (no property/
-mortgage tile in this version).
+Full replace — include every asset/liability/pension pot each time, not
+just the ones that changed. Labels must match exactly what's used in
+`savingsGoals` (see below) and what you use to refer to each account.
+`asOf` drives the "AS OF" label in the app header. Net worth is computed
+as `assets + pensions − liabilities` — there's no property/mortgage tile
+in this version.
 
-### `spend`
-**Merged, not replaced** — a monthly update only needs the new month:
+## `netWorthHistory`
 ```json
 {
-  "spend": {
-    "monthly": {
-      "Groceries": { "2026-09": 420.46 }
-    },
-    "transactions": {
-      "Groceries": {
-        "2026-09": [
-          { "date": "2026-09-06", "desc": "TESCO STORES", "amount": 12.89, "source": "current_account" }
-        ]
-      }
+  "months": ["2026-09"],
+  "entries": {
+    "2026-09": { "assets": 4700.00, "liabilities": 1300.00, "pensions": 6000.00 }
+  }
+}
+```
+Merge. Only send the new month(s). `assets`/`liabilities`/`pensions` here
+are the **totals**, matching the sums in that month's `netWorth`. Widget 01
+compares the latest two entries for its delta; Widget 04 charts the full
+series. (The app derives `months` from `entries`' keys itself after
+merging, so an incoming `months` array is read but not required — send it
+anyway for readability, since **Copy Current Data as JSON** includes it.)
+
+## `spend`
+```json
+{
+  "months": ["2026-09"],
+  "monthly": {
+    "Fishing/Angling": { "2026-09": 45.20 }
+  },
+  "transactions": {
+    "Fishing/Angling": {
+      "2026-09": [
+        { "date": "2026-09-05", "desc": "EXAMPLE MERCHANT LTD", "amount": 45.20, "source": "amex" }
+      ]
     }
   }
 }
 ```
-Only mention the categories that actually had spend that month — any
-category you don't include is left exactly as it was. To correct a past
-month, include that month's key again under the relevant category — it
-overwrites just that category/month combination, nothing else.
+Merge, by category and month. `monthly[category][month]` must equal the
+sum of `transactions[category][month]`. `source` should identify which
+account/card the transaction came from (`current_account`, `barclaycard`,
+`amex`, etc.) — it's shown in the app's drill-down panel in small italics
+for reconciliation.
 
-For each category, `monthly[category][month]` should equal the sum of
-`transactions[category][month][].amount` for that same month — the
-`monthly` figure is what every calculation actually uses; `transactions`
-only populates the double-click drill-down panel. `source` on each
-transaction is a free-text tag for which account/card it came from
-(shown in the drill-down, e.g. `current_account`, `barclaycard`) — purely
-informational, nothing keys off its exact value.
-
-`spend.months`/`spend.categories` are **not** read on input — the app
-derives the month list and category set from `monthly`'s keys directly,
-so there's nothing to keep in sync. **Copy Current Data as JSON** still
-includes a `spend.months` array for human readability, but you never need
-to send one back.
-
-**Category names are grouped in `SPEND_GROUPS`, hardcoded in
-`personal-finance-tracker.html`:**
+Category names should be one of the fixed list below, grouped in
+`SPEND_GROUPS` (hardcoded in `personal-finance-tracker.html`):
 ```
 Set Spend:       Insurance, Phone/Mobile, Gym & Fitness, Subscriptions,
                  Investments, Pension Contributions, Bank Fees
@@ -123,113 +105,113 @@ To Be Reviewed:  Cash Withdrawals, To Be Reviewed
 ```
 A category outside this list still shows up — it lands in a synthetic
 **Uncategorised** group at the bottom of Widget 03 rather than being
-silently dropped — but it won't have a "proper" home until you add it to
-`SPEND_GROUPS` in the code (a code change, not a data change). Ask for
-that separately rather than inventing a new category name in the JSON if
-you want it to land in a specific group from the start.
+silently dropped — but it won't have a "proper" home until it's added to
+`SPEND_GROUPS` in the code (a code change, not a data change).
 
-### `income`
-**Merged, not replaced**, the same way as `spend` — a monthly update only
-needs the new month. Feeds **Widget 05 · Income & Outgoings** alongside
-total spend for that month:
+Do not include Credit Card Payments, Loan Repayments, a Joint Household
+Contribution, Curve flip-pairs, cross-statement duplicates, or
+transactions that net off elsewhere — see "Exclusions from spend" in
+PROJECT-INSTRUCTIONS.md.
+
+(As with `netWorthHistory`, the app derives its month list from
+`monthly`'s keys directly rather than trusting the `months` array on
+input — include `months` for readability, it's just not load-bearing.)
+
+## `income`
 ```json
 {
-  "income": {
-    "monthly": { "2026-09": 4574.04 }
-  }
+  "months": ["2026-09"],
+  "monthly": { "2026-09": 3500.00 }
 }
 ```
-A month present in spend but missing from `income.monthly` (e.g. this
-month's salary hasn't landed yet) is shown as **pending** in the cash
-flow chart rather than as zero income — don't backfill a guess, just
-leave the month out until it lands.
+Merge, by month. One figure per month — total income credited that month.
+If a month's income hasn't landed yet by the cutoff date, omit it rather
+than guessing; the app shows it as "pending" in Widget 05 rather than zero.
 
-### `savingsGoals`
-Full replace.
-```json
-[
-  {
-    "label": "Rainy Day Pot",
-    "purpose": "Emergency fund",
-    "targetAmount": 4000,
-    "targetDate": "2027-02-28"
-  },
-  {
-    "label": "Stocks & Shares ISA",
-    "purpose": "Long-term savings — no fixed target",
-    "targetAmount": null,
-    "targetDate": null
-  }
-]
-```
-`label` must exactly match an asset `label` in `netWorth.assets` — that's
-how the current balance gets pulled in. Use `null`/`null` for a goal
-that's tracked but has no target (shown as balance-only).
-
-### `story`
-Full replace. Each entry is a bullet with a sentiment dot, not a
-paragraph:
+## `story`
 ```json
 {
   "month": "2026-09",
   "narrative": [
-    { "type": "negative", "text": "Fishing/Angling hit £872 in August — the highest single month this year." },
-    { "type": "positive", "text": "No Travel/Trips spend in August — the first quiet month since March." },
-    { "type": "neutral",  "text": "Retail/Shopping was again the largest single category." }
+    { "type": "positive", "text": "..." },
+    { "type": "negative", "text": "..." },
+    { "type": "neutral",  "text": "..." }
   ]
 }
 ```
-`type` is one of `"positive"`, `"negative"`, `"neutral"` — anything else
-still renders but without a recognised dot colour. Written by hand (or by
-Claude, during the monthly update chat) — nothing here is computed
-in-browser.
+Full replace. Each entry renders as one bullet in Widget 02 with a
+coloured dot — green for positive, red for negative, amber/grey for
+neutral. `type` reflects whether the point is good, bad, or purely
+informational, not the size of the number. Written by hand (or by Claude,
+during the monthly update chat) — nothing here is computed in-browser.
+See "Story of the Month — in-depth analysis" in PROJECT-INSTRUCTIONS.md
+for the process to follow before filling this in each month.
 
-### `actions`
-Full replace — same as every other full-replace key, it does not append.
-If you want to add new rolling actions without losing old ones, copy the
-current list first (Widget 07 → **Copy Current Data as JSON**) and append
-the new item(s) before pasting back.
+## `actions`
 ```json
 [
-  { "text": "American Express is carrying interest — prioritise paying this down.", "raisedMonth": "2026-08", "done": false },
-  { "text": "Resolved item, kept for the record.", "raisedMonth": "2026-07", "done": true }
+  { "text": "...", "raisedMonth": "2026-08", "done": false }
 ]
 ```
+Full replace — include the complete list every time, it does not append.
+Each month: carry forward existing open items, mark resolved ones
+`done:true`, and only add new items where that month's analysis genuinely
+surfaced something worth acting on. Rendered in Widget 02 as two
+accordions, Open and Completed. (Copy the current list via **Copy Current
+Data as JSON** first if you want to amend rather than rebuild it from
+memory.)
 
-### `netWorthHistory`
-**Merged, not replaced**, the same way as `spend` — a monthly update only
-needs the new month. Feeds **Widget 04 · Net Worth Trajectory**, a
-running month-by-month record separate from the point-in-time `netWorth`
-snapshot above:
+## `savingsGoals`
+```json
+[
+  { "label": "Everyday Saver", "purpose": "Emergency fund", "targetAmount": 4000, "targetDate": "2027-02-28" },
+  { "label": "Fixed Saver", "purpose": "Fixed savings buffer", "targetAmount": 2000, "targetDate": null },
+  { "label": "Stocks & Shares ISA", "purpose": "Long-term savings — no fixed target", "targetAmount": null, "targetDate": null }
+]
+```
+Full replace, changes rarely. `label` must exactly match an asset label in
+`netWorth.assets` — that's how Widget 06 pulls the current balance in.
+`targetAmount`/`targetDate` both `null` = tracked balance-only, no fixed
+goal. If `targetDate` is set, Widget 06 shows the monthly amount needed to
+hit it on time.
+
+## `meta`
+```json
+{ "currentAsOfDay": 25 }
+```
+Full replace. Day-of-month the current month's statements go up to —
+surfaces as a "partial, to day N" note under Widget 03 once both `meta`
+and that month's `spend` are present. Omit once a month closes out fully
+(the note just won't show).
+
+---
+
+## Example monthly submission
+A typical month only touches a handful of keys — everything else is left
+alone by the merge:
+
 ```json
 {
-  "netWorthHistory": {
-    "entries": {
-      "2026-09": { "assets": 14978.26, "liabilities": 16526.50, "pensions": 321735.00 }
-    }
-  }
+  "netWorth": { "asOf": "2026-09-24", "assets": [ /* full list */ ], "liabilities": [ /* full list */ ], "pensions": { "pots": [ /* full list */ ] } },
+  "netWorthHistory": { "months": ["2026-09"], "entries": { "2026-09": { "assets": 4700.00, "liabilities": 1300.00, "pensions": 6000.00 } } },
+  "spend": { "months": ["2026-09"], "monthly": { "...": { "2026-09": 0 } }, "transactions": { "...": { "2026-09": [] } } },
+  "income": { "months": ["2026-09"], "monthly": { "2026-09": 3500.00 } },
+  "story": { "month": "2026-09", "narrative": [ /* 3-6 bullets */ ] },
+  "actions": [ /* full current list */ ],
+  "meta": { "currentAsOfDay": 24 }
 }
 ```
-`liabilities` here is the sum of `netWorth.liabilities` for that month —
-the app computes net worth as `assets − liabilities + pensions`. Add one
-entry each month (typically the same month you refresh `netWorth`) and
-the trajectory chart/table extends automatically.
+`savingsGoals` is omitted here since nothing changed that month — the app
+leaves it exactly as it was.
 
 ## A safe monthly workflow
 
-1. Hand your new month's statements to whatever process builds the
-   update (e.g. a Claude conversation), along with this document, and
-   ask for a JSON object containing just the new month's `spend` and
-   `income`, plus a refreshed `netWorth`, `netWorthHistory`, `story`, and
-   `actions`. You do **not** need to extract or resend the existing
-   history — `spend`, `income`, and `netWorthHistory` merge in
-   automatically.
-2. Paste the result into Widget 07, click **Apply Locally**, and eyeball
+1. Paste the result into Widget 07, click **Apply Locally**, and eyeball
    the numbers before trusting them — the app recalculates everything
    live, so a wrong figure will usually stand out. Check the status box
    for any unrecognised keys it flagged.
-3. Click **Save to Cloud** once it looks right.
-4. If you ever want to sanity-check exactly what's currently stored,
+2. Click **Save to Cloud** once it looks right.
+3. If you ever want to sanity-check exactly what's currently stored,
    **Copy Current Data as JSON** in Widget 07 gives you the full current
    state, history included.
 
@@ -251,5 +233,4 @@ UI on each transaction, but it's currently a **preview-only stub** — it
 logs what it would do to the console and shows a note, but doesn't
 change any data. To actually recategorise or remove a transaction today,
 edit it in your source data and repaste the affected month's `spend` via
-Widget 07. Wiring the in-page buttons to a real update is a natural next
-step, not yet built.
+Widget 07.

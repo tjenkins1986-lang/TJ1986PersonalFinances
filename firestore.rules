@@ -3,17 +3,18 @@ rules_version = '2';
 // Security rules for your personal finance tracker.
 //
 // This is what ACTUALLY restricts access to your financial data — not the
-// sign-in gate in index.html, which is just UI. Anyone could open the
-// browser console and try to read/write Firestore directly; these rules
-// are enforced server-side by Firebase itself and can't be bypassed from
-// the client.
+// sign-in gate in personal-finance-tracker.html, which is just UI. Anyone
+// could open the browser console and try to read/write Firestore
+// directly; these rules are enforced server-side by Firebase itself and
+// can't be bypassed from the client.
 //
 // SETUP: replace the placeholder email below with your real Google
 // account email, then paste this whole file into:
 //   Firebase Console > Firestore Database > Rules > (replace contents) > Publish
 //
-// Keep this in sync with the ALLOWED_EMAILS array in index.html's
-// Firebase script block (that one is cosmetic only, this one is real).
+// Keep this in sync with the ALLOWED_EMAILS array in
+// personal-finance-tracker.html's Firebase script block (that one is
+// cosmetic only, this one is real).
 
 service cloud.firestore {
   match /databases/{database}/documents {

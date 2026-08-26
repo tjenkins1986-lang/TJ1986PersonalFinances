@@ -450,7 +450,7 @@
 
   <!-- ============ WIDGET 03 — WHAT I SPEND ============ -->
   <div class="widget-divider"><span class="widget-num">03</span><span class="widget-name">What I Spend</span></div>
-  <div class="widget-sub"><b>Double-click</b> any month value to see the transactions behind it. <b>Avg</b> = every month before the current one. <b>Current</b> column shows this month vs that average — green under, red over.</div>
+  <div class="widget-sub" id="w03Sub"><b>Double-click</b> any month value to see the transactions behind it. <b>Avg</b> = every month before the current one. <b>Current</b> column shows this month vs that average — green under, red over.</div>
   <div id="spendGroups"></div>
 
   <div id="drilldown">
@@ -559,6 +559,10 @@ let savingsGoals = [];
    equal the sum of transactions[cat][month][].amount for that month. */
 let monthly = {};
 let transactions = {};
+
+/* meta.currentAsOfDay: day-of-month the current month's spend statements go
+   up to — drives the "partial month" note in Widget 03. Full replace. */
+let meta = { currentAsOfDay: null };
 
 const SPEND_GROUPS = [
   { id:"set", label:"Set Spend", cats:["Insurance","Phone/Mobile","Gym & Fitness","Subscriptions","Investments","Pension Contributions","Bank Fees"] },
@@ -835,6 +839,14 @@ function renderWidget03(){
           <div class="hint">double-click a month cell to see the transactions behind it</div>
         </div>
       </div>`;
+  }
+
+  const subEl = document.getElementById("w03Sub");
+  if (subEl){
+    const base = `<b>Double-click</b> any month value to see the transactions behind it. <b>Avg</b> = every month before the current one. <b>Current</b> column shows this month vs that average — green under, red over.`;
+    subEl.innerHTML = (meta.currentAsOfDay && CURRENT_MONTH)
+      ? `${base} <b>${MONTH_LABELS[CURRENT_MONTH]}</b> is partial, to day ${meta.currentAsOfDay}.`
+      : base;
   }
 
   document.getElementById("spendGroups").innerHTML = MONTHS.length
@@ -1137,12 +1149,13 @@ function mergeIncoming(incoming){
     log.push(`income: merged ${Object.keys(incoming.income.monthly).length} month(s)`);
   }
 
-  ['netWorth','savingsGoals','story','actions'].forEach(key => {
+  ['netWorth','savingsGoals','story','actions','meta'].forEach(key => {
     if (incoming[key] !== undefined){
       if (key === 'netWorth') netWorth = incoming.netWorth;
       if (key === 'savingsGoals') savingsGoals = incoming.savingsGoals;
       if (key === 'story') story = incoming.story;
       if (key === 'actions') actions = incoming.actions;
+      if (key === 'meta') meta = incoming.meta;
       log.push(`${key}: replaced`);
     }
   });
@@ -1152,7 +1165,7 @@ function mergeIncoming(incoming){
 
 function currentStateSnapshot(){
   return {
-    netWorth, savingsGoals, story, actions, income,
+    netWorth, savingsGoals, story, actions, income, meta,
     netWorthHistory,
     spend: {
       months: [...new Set(Object.values(monthly).flatMap(c => Object.keys(c)))].sort(),
@@ -1171,7 +1184,7 @@ function w07ApplyLocally(){
     w07Status('Invalid JSON — ' + e.message, 'err');
     return;
   }
-  const knownKeys = ['spend','netWorth','netWorthHistory','income','savingsGoals','story','actions'];
+  const knownKeys = ['spend','netWorth','netWorthHistory','income','savingsGoals','story','actions','meta'];
   const unknown = Object.keys(incoming).filter(k => !knownKeys.includes(k));
   try {
     const log = mergeIncoming(incoming);
@@ -1265,12 +1278,12 @@ window.__cloudLoadError = function(err){
   // are not secret (they're meant to ship in client-side code) — real
   // security comes from firestore.rules, not from hiding this object. ----
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyAnnq5az7IrYEfaH_5TaOmlx_hxw5NsEBE",
+    authDomain: "personal-finance-92634.firebaseapp.com",
+    projectId: "personal-finance-92634",
+    storageBucket: "personal-finance-92634.firebasestorage.app",
+    messagingSenderId: "1021206897602",
+    appId: "1:1021206897602:web:b4768b5424830e87e42c5b"
   };
 
   // ---- 2) Optional friendly-message allowlist. Leave empty to skip the
