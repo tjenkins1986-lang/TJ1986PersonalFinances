@@ -1291,7 +1291,7 @@ window.__cloudLoadError = function(err){
   // Fill in to make an unauthorized sign-in show a clear message instead
   // of a silent permission error. Keep this in sync with firestore.rules. ----
   const ALLOWED_EMAILS = [
-    // "you@gmail.com"
+    "Thomas.jenkins1986@gmail.com"
   ];
 
   const gateEl = document.getElementById('authGate');
@@ -1341,7 +1341,7 @@ window.__cloudLoadError = function(err){
         return;
       }
 
-      const allowed = ALLOWED_EMAILS.length === 0 || ALLOWED_EMAILS.includes(user.email);
+      const allowed = ALLOWED_EMAILS.length === 0 || ALLOWED_EMAILS.some(e => e.toLowerCase() === (user.email || '').toLowerCase());
       if(!allowed){
         contentEl.style.display = 'none';
         gateEl.style.display = 'flex';
