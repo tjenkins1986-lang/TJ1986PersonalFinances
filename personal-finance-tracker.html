@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Finance Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:            #0A0D10;
+    --panel:         #12161B;
+    --panel-raised:  #171C22;
+    --panel-detail:  #0E1215;
+    --hairline:      #232A31;
+    --text:          #E7ECEF;
+    --text-dim:      #8B98A3;
+    --text-faint:    #545F68;
+    --accent:        #D9A441;
+    --pos:           #3FBF7F;
+    --neg:           #E5484D;
+    --neu:           #6B7580;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    padding:28px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:1080px; margin:0 auto; }
+
+  /* ---- app-level header ---- */
+  .app-header{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    border-bottom:1px solid var(--hairline);
+    padding-bottom:14px;
+    margin-bottom:8px;
+  }
+  .app-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:0.02em;
+  }
+  .app-title span{ color:var(--accent); }
+  .app-time{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--pos);
+    box-shadow:0 0 6px var(--pos);
+    flex:none;
+  }
+  .cloud-status{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--text-faint);
+    margin-bottom:8px;
+    min-height:1em;
+  }
+
+  /* ---- widget section divider ---- */
+  .widget-divider{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin:32px 0 14px;
+  }
+  .widget-divider:first-of-type{ margin-top:24px; }
+  .widget-num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--accent);
+    font-weight:700;
+  }
+  .widget-name{
+    font-size:11.5px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    font-weight:600;
+  }
+  .widget-divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:var(--hairline);
+    align-self:center;
+  }
+  .widget-sub{
+    font-size:11px;
+    color:var(--text-faint);
+    margin-bottom:16px;
+    line-height:1.5;
+  }
+
+  /* ---- headline net worth (widget 01) ---- */
+  .headline{
+    background:var(--panel-raised);
+    border:1px solid var(--hairline);
+    padding:20px 22px;
+    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  .headline-label{
+    font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--text-dim); font-weight:600; margin-bottom:6px;
+  }
+  .headline-value{
+    font-family:'IBM Plex Mono', monospace; font-size:38px; font-weight:700;
+    font-variant-numeric:tabular-nums; letter-spacing:-0.015em;
+  }
+  .headline-sub{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--text-dim); margin-top:4px; }
+  .headline-delta-block{ text-align:right; }
+  .headline-delta{
+    font-family:'IBM Plex Mono', monospace; font-size:19px; font-weight:600;
+    display:flex; align-items:center; gap:6px; justify-content:flex-end;
+  }
+  .headline-delta.pos{ color:var(--pos); }
+  .headline-delta.neg{ color:var(--neg); }
+  .headline-delta.neu{ color:var(--text-faint); }
+  .headline-delta-pct{ font-size:12px; color:var(--text-dim); margin-top:2px; }
+
+  /* ---- shared accordion section shell (used by widgets 01 & 03) ---- */
+  .section{ border:1px solid var(--hairline); margin-bottom:1px; }
+  .section-toggle{
+    all:unset; box-sizing:border-box; width:100%;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px; background:var(--panel); cursor:pointer;
+    border-left:2px solid transparent;
+  }
+  .section-toggle:hover{ background:var(--panel-raised); }
+  .section-toggle:focus-visible{ outline:2px solid var(--accent); outline-offset:-2px; }
+  .section.pos .section-toggle{ border-left-color:var(--pos); }
+  .section.neg .section-toggle{ border-left-color:var(--neg); }
+  .section.neu .section-toggle{ border-left-color:var(--neu); }
+  .section-left{ display:flex; align-items:center; gap:10px; }
+  .chevron{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-faint);
+    transition:transform 0.18s ease; display:inline-block;
+  }
+  .section[data-open="true"] .chevron{ transform:rotate(90deg); color:var(--accent); }
+  .section-label{
+    font-size:11.5px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--text); font-weight:600;
+  }
+  .section-count{ font-size:11px; color:var(--text-faint); margin-left:8px; }
+  .section-right{ display:flex; align-items:center; gap:14px; }
+  .section-meta{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--text-faint); text-align:right; }
+  .section-value{
+    font-family:'IBM Plex Mono', monospace; font-size:17px; font-weight:600;
+    font-variant-numeric:tabular-nums;
+  }
+  .section-value.neg-val{ color:var(--neg); }
+  .section-delta{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px;
+    display:flex; align-items:center; gap:4px; min-width:80px; justify-content:flex-end;
+  }
+  .section-delta.pos{ color:var(--pos); }
+  .section-delta.neg{ color:var(--neg); }
+  .section-delta.neu{ color:var(--text-faint); font-style:italic; }
+  .arrow{ font-size:10px; }
+  .detail{ max-height:0; overflow:hidden; background:var(--panel-detail); transition:max-height 0.25s ease; }
+  .section[data-open="true"] .detail{ max-height:2000px; }
+  @media (prefers-reduced-motion: reduce){ .detail, .chevron{ transition:none; } }
+
+  /* ---- widget 01: net position breakdown rows ---- */
+  .row{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding:9px 16px 9px 34px; border-top:1px solid var(--hairline); font-size:13px;
+  }
+  .row-label{ color:var(--text-dim); }
+  .row-value{ font-family:'IBM Plex Mono', monospace; font-variant-numeric:tabular-nums; color:var(--text); }
+  .row-value.liab{ color:var(--neg); }
+  .pension-note{
+    font-size:11px; color:var(--text-faint); padding:10px 16px 12px 34px;
+    border-top:1px dashed var(--hairline); line-height:1.5;
+  }
+
+  /* ---- widget 02: story of the month ---- */
+  .story-bullets{ border:1px solid var(--hairline); background:var(--panel); margin-bottom:14px; }
+  .story-bullet{
+    display:flex; align-items:flex-start; gap:10px;
+    padding:10px 16px; border-bottom:1px solid var(--hairline); font-size:13px; line-height:1.5;
+  }
+  .story-bullet:last-child{ border-bottom:none; }
+  .bullet-dot{
+    width:7px; height:7px; border-radius:50%; margin-top:5px; flex:none;
+  }
+  .bullet-dot.positive{ background:var(--pos); box-shadow:0 0 5px var(--pos); }
+  .bullet-dot.negative{ background:var(--neg); box-shadow:0 0 5px var(--neg); }
+  .bullet-dot.neutral{ background:var(--neu); }
+  .story-bullet-text{ color:var(--text); }
+  .story-source{
+    font-size:10.5px; color:var(--text-faint); text-align:right; margin-bottom:16px; font-style:italic;
+  }
+
+  /* ---- widget 06: savings goals ---- */
+  .goal-card{
+    border:1px solid var(--hairline); background:var(--panel);
+    padding:14px 16px; margin-bottom:1px;
+  }
+  .goal-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
+  .goal-label{ font-size:13px; font-weight:600; color:var(--text); }
+  .goal-purpose{ font-size:11px; color:var(--text-faint); margin-bottom:10px; }
+  .goal-balance{ font-family:'IBM Plex Mono',monospace; font-size:16px; font-weight:600; }
+  .goal-target{ font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-dim); }
+  .goal-bar-track{ height:6px; background:var(--panel-detail); border:1px solid var(--hairline); margin:8px 0 6px; overflow:hidden; }
+  .goal-bar-fill{ height:100%; background:var(--accent); }
+  .goal-bar-fill.achieved{ background:var(--pos); }
+  .goal-meta-row{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; }
+  .goal-notrack{ font-size:11px; color:var(--text-faint); font-style:italic; margin-top:6px; }
+
+  /* ---- widget 07: monthly data update ---- */
+  #widget07 textarea{
+    width:100%; min-height:160px; background:var(--panel-detail); color:var(--text);
+    border:1px solid var(--hairline); font-family:'IBM Plex Mono',monospace; font-size:12px;
+    padding:10px; resize:vertical;
+  }
+  #widget07 textarea:focus{ outline:1px solid var(--accent); }
+  .w07-buttons{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .w07-buttons button{
+    all:unset; cursor:pointer; font-family:'IBM Plex Sans',sans-serif; font-size:12px;
+    padding:8px 14px; border:1px solid var(--hairline); color:var(--text-dim);
+  }
+  .w07-buttons button:hover{ border-color:var(--text-dim); color:var(--text); }
+  .w07-buttons button.primary{ border-color:var(--pos); color:var(--pos); }
+  .w07-buttons button.primary:hover{ background:var(--pos); color:var(--bg); }
+  .w07-buttons button.cloud{ border-color:var(--accent); color:var(--accent); }
+  .w07-buttons button.cloud:hover{ background:var(--accent); color:var(--bg); }
+  #w07Status{
+    margin-top:10px; padding:10px 12px; font-size:12px; line-height:1.6;
+    border:1px solid var(--hairline); background:var(--panel-detail); display:none; white-space:pre-wrap;
+  }
+  #w07Status.show{ display:block; }
+  #w07Status.ok{ border-color:var(--pos); color:var(--pos); }
+  #w07Status.err{ border-color:var(--neg); color:var(--neg); }
+  #w07Status.info{ border-color:var(--accent); color:var(--text-dim); }
+
+  .actions-list{ }
+  .action-row{
+    display:flex; align-items:flex-start; gap:10px;
+    padding:10px 16px 10px 34px; border-top:1px solid var(--hairline); font-size:13px;
+  }
+  .action-check{
+    width:14px; height:14px; border:1px solid var(--text-faint); flex:none; margin-top:3px;
+    display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--pos);
+  }
+  .action-check.done{ border-color:var(--pos); }
+  .action-text{ color:var(--text); flex:1; }
+  .action-text.done{ color:var(--text-faint); text-decoration:line-through; }
+  .action-month{ font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-faint); flex:none; }
+
+  /* ---- widgets 04/05: diverging bar charts ---- */
+  .chart-block{ border:1px solid var(--hairline); background:var(--panel); padding:16px; margin-bottom:14px; }
+  .chart-legend{ display:flex; gap:18px; margin-bottom:10px; font-size:11px; color:var(--text-dim); }
+  .chart-legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .legend-swatch{ width:9px; height:9px; display:inline-block; }
+  .chart-scroll{ overflow-x:auto; }
+  .chart-svg-wrap{ min-width:100%; }
+  .chart-note{ font-size:10.5px; color:var(--text-faint); margin-top:8px; font-style:italic; }
+
+  /* ---- widget 03: spend matrix ---- */
+  .matrix-scroll{ overflow-x:auto; border-top:1px solid var(--hairline); }
+  table{ border-collapse:collapse; width:100%; font-size:12px; }
+  th, td{
+    padding:8px 10px; text-align:right; font-family:'IBM Plex Mono', monospace;
+    font-variant-numeric:tabular-nums; white-space:nowrap; border-bottom:1px solid var(--hairline);
+  }
+  th{
+    font-family:'IBM Plex Sans', sans-serif; font-size:10px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--text-faint); font-weight:600;
+    position:sticky; top:0; background:var(--panel-detail); z-index:2;
+  }
+  td.catcell, th.catcell{
+    text-align:left; position:sticky; left:0; background:var(--panel-detail);
+    color:var(--text-dim); min-width:150px; z-index:1;
+  }
+  th.catcell{ z-index:3; }
+  td.month-cell{ color:var(--text); cursor:pointer; }
+  td.month-cell:hover{ background:#1a2027; }
+  td.zero{ color:var(--text-faint); }
+  td.avg-cell{ color:var(--text-dim); border-left:1px dashed var(--hairline); }
+  td.cur-cell{ border-left:1px solid var(--hairline); font-weight:600; }
+  td.delta-cell{ font-size:11px; }
+  td.delta-cell.pos{ color:var(--pos); }
+  td.delta-cell.neg{ color:var(--neg); }
+  tr.grouptotal td{ background:var(--panel-raised); font-weight:600; color:var(--text); border-top:1px solid var(--hairline); }
+  .hint{ font-size:10px; color:var(--text-faint); padding:8px 10px; font-style:italic; }
+
+  /* ---- drill-down panel (raised above everything, incl. sticky table cells) ---- */
+  #drilldown{
+    position:sticky;
+    bottom:12px;
+    margin-top:20px;
+    background:var(--panel-raised);
+    border:1px solid var(--accent);
+    box-shadow:0 8px 24px rgba(0,0,0,0.55);
+    display:none;
+    z-index:50;
+  }
+  #drilldown.open{ display:block; }
+  .dd-head{ display:flex; justify-content:space-between; align-items:center; padding:10px 16px; border-bottom:1px solid var(--hairline); }
+  .dd-title{ font-size:12px; font-weight:600; color:var(--accent); }
+  .dd-title span{ color:var(--text-dim); font-weight:400; }
+  .dd-close{ all:unset; cursor:pointer; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; font-size:14px; padding:2px 6px; }
+  .dd-close:hover{ color:var(--text); }
+  .dd-rows{ max-height:280px; overflow-y:auto; }
+  .dd-row{ display:flex; justify-content:space-between; align-items:baseline; padding:7px 16px; border-bottom:1px solid var(--hairline); font-size:12.5px; cursor:pointer; }
+  .dd-row:hover{ background:#1a2027; }
+  .dd-row .dd-date{ color:var(--text-faint); font-family:'IBM Plex Mono',monospace; width:80px; flex:none; }
+  .dd-row .dd-desc{ color:var(--text-dim); flex:1; padding:0 10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dd-row .dd-source{ color:var(--text-faint); font-style:italic; font-size:11px; margin-left:6px; }
+  .dd-row .dd-amt{ font-family:'IBM Plex Mono',monospace; color:var(--text); flex:none; }
+  .dd-empty{ padding:16px; color:var(--text-faint); font-size:12px; text-align:center; }
+
+  /* ---- recategorise stub popover ---- */
+  .dd-recat{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    padding:8px 16px 10px 96px; background:var(--panel-detail);
+    border-bottom:1px solid var(--hairline); font-size:11.5px;
+  }
+  .dd-recat select{
+    background:var(--panel); color:var(--text); border:1px solid var(--hairline);
+    font-family:'IBM Plex Sans',sans-serif; font-size:11.5px; padding:4px 6px;
+  }
+  .dd-recat button{
+    all:unset; cursor:pointer; font-size:11px; padding:4px 10px;
+    border:1px solid var(--accent); color:var(--accent);
+  }
+  .dd-recat button:hover{ background:var(--accent); color:var(--bg); }
+  .dd-recat button.danger{ border-color:var(--neg); color:var(--neg); }
+  .dd-recat button.danger:hover{ background:var(--neg); color:var(--bg); }
+  .dd-recat .dd-recat-note{ color:var(--text-faint); font-style:italic; flex-basis:100%; }
+
+  .app-footer{ margin-top:36px; padding-top:14px; border-top:1px solid var(--hairline); font-size:11px; color:var(--text-faint); text-align:right; }
+
+  /* ---- auth gate ---- */
+  #appContent{ display:none; }
+  .auth-gate{
+    position:fixed; inset:0; background:var(--bg); z-index:200;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .auth-box{
+    max-width:420px; width:100%; text-align:center;
+    background:var(--panel-raised); border:1px solid var(--hairline);
+    padding:40px 32px;
+  }
+  .auth-eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--text-faint); margin-bottom:10px;
+  }
+  .auth-title{
+    font-family:'IBM Plex Mono', monospace; font-size:22px; font-weight:700;
+    letter-spacing:0.02em; margin-bottom:6px;
+  }
+  .auth-title span{ color:var(--accent); }
+  .auth-subtitle{ font-size:12.5px; color:var(--text-dim); margin-bottom:20px; }
+  .auth-status{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--text-dim);
+    line-height:1.6; margin:0 0 20px; min-height:1em;
+  }
+  .auth-warning{
+    background:rgba(229,72,77,0.10); border:1px solid var(--neg); padding:14px 16px;
+    margin:-4px 0 18px; font-family:'IBM Plex Sans', sans-serif; font-size:12.5px;
+    color:var(--text); line-height:1.6; text-align:left;
+  }
+  .auth-warning b{ color:var(--neg); }
+  .google-btn{
+    display:inline-flex; align-items:center; gap:10px; background:#fff; color:#1f1f1f;
+    border:none; border-radius:4px; padding:11px 22px; font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px; font-weight:500; cursor:pointer;
+  }
+  .google-btn:hover{ background:#f2f2f2; }
+  .auth-signout{
+    display:inline-block; margin-top:16px; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    color:var(--text-faint); background:none; border:none; cursor:pointer; text-decoration:underline;
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= AUTH GATE ================= -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-box">
+    <div class="auth-eyebrow">Personal Finance Tracker</div>
+    <div class="auth-title">LEDGER<span>_</span></div>
+    <div class="auth-status" id="authGateStatus">Checking sign-in status…</div>
+    <div class="auth-warning" id="inAppBrowserWarning" style="display:none;"></div>
+    <button type="button" class="google-btn" id="signInBtn" style="display:none;">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+      Sign in with Google
+    </button>
+    <button type="button" class="auth-signout" id="signOutBtn" style="display:none;">Sign out</button>
+  </div>
+</div>
+
+<script>
+  // Runs immediately, independent of Firebase — Google Sign-In needs full
+  // browser storage/cookie access, which in-app browsers (WhatsApp,
+  // Instagram, Messenger, etc.) commonly block or partition, producing a
+  // cryptic "missing initial state / sessionStorage inaccessible" error.
+  // Catch the common ones up front with a plain-English fix instead, and
+  // do it before the Firebase SDK even attempts to load — no reason a
+  // slow or failed CDN fetch should delay this warning.
+  (function(){
+    var IN_APP_BROWSER_HINTS = ['WhatsApp', 'FBAN', 'FBAV', 'FB_IAB', 'Instagram', 'Line/', 'MicroMessenger', 'TikTok', 'Twitter'];
+    var ua = navigator.userAgent || '';
+    if(IN_APP_BROWSER_HINTS.some(function(hint){ return ua.indexOf(hint) !== -1; })){
+      var el = document.getElementById('inAppBrowserWarning');
+      el.innerHTML = '<b>Heads up:</b> you appear to have opened this link inside another app\'s built-in browser (e.g. WhatsApp, Instagram). Google Sign-In usually fails there. Tap the share icon in this browser bar and choose <b>Open in Safari</b> (or Chrome), or copy this link and paste it directly into your browser.';
+      el.style.display = 'block';
+    }
+  })();
+</script>
+
+<div class="wrap" id="appContent">
+
+  <div class="app-header">
+    <div class="app-title">LEDGER<span>_</span></div>
+    <div class="app-time"><span class="dot"></span><span id="asOfLabel">—</span></div>
+  </div>
+  <div class="cloud-status" id="cloudStatus"></div>
+
+  <!-- ============ WIDGET 01 — NET POSITION ============ -->
+  <div class="widget-divider"><span class="widget-num">01</span><span class="widget-name">Net Position</span></div>
+  <div class="headline" id="headline"></div>
+  <div id="netPositionSections"></div>
+
+  <!-- ============ WIDGET 02 — STORY OF THE MONTH ============ -->
+  <div class="widget-divider"><span class="widget-num">02</span><span class="widget-name">Story of the Month</span></div>
+  <div class="story-bullets" id="storyBullets"></div>
+  <div class="story-source">narrative + actions are written each month as part of the data update — not auto-generated in-browser</div>
+  <div id="actionsSection"></div>
+
+  <!-- ============ WIDGET 03 — WHAT I SPEND ============ -->
+  <div class="widget-divider"><span class="widget-num">03</span><span class="widget-name">What I Spend</span></div>
+  <div class="widget-sub"><b>Double-click</b> any month value to see the transactions behind it. <b>Avg</b> = every month before the current one. <b>Current</b> column shows this month vs that average — green under, red over.</div>
+  <div id="spendGroups"></div>
+
+  <div id="drilldown">
+    <div class="dd-head">
+      <div class="dd-title" id="ddTitle">—</div>
+      <button class="dd-close" onclick="closeDrilldown()">✕</button>
+    </div>
+    <div class="dd-rows" id="ddRows"></div>
+  </div>
+
+  <!-- ============ WIDGET 04 — NET WORTH TRAJECTORY ============ -->
+  <div class="widget-divider"><span class="widget-num">04</span><span class="widget-name">Net Worth Trajectory</span></div>
+  <div class="widget-sub">Assets vs. liabilities, month on month. Grows automatically as each month is added via the Monthly Data Update.</div>
+  <div id="netWorthChart"></div>
+
+  <!-- ============ WIDGET 05 — CASH FLOW ============ -->
+  <div class="widget-divider"><span class="widget-num">05</span><span class="widget-name">Income &amp; Outgoings</span></div>
+  <div class="widget-sub">Income in vs. total spend out per month, with the surplus/deficit marked.</div>
+  <div id="cashFlowChart"></div>
+
+  <!-- ============ WIDGET 06 — SAVINGS ============ -->
+  <div class="widget-divider"><span class="widget-num">06</span><span class="widget-name">Savings</span></div>
+  <div class="widget-sub">Balance pulled from Net Position by matching account label. Dated goals show the monthly amount needed to hit target on time.</div>
+  <div id="savingsGoals"></div>
+
+  <!-- ============ WIDGET 07 — MONTHLY DATA UPDATE ============ -->
+  <div class="widget-divider"><span class="widget-num">07</span><span class="widget-name">Monthly Data Update</span></div>
+  <div class="widget-sub">Paste the month's JSON (see DATA-FORMAT.md). <b>Apply Locally</b> merges it into this page only, so you can check the numbers before it's live. <b>Save to Cloud</b> writes it to Firestore, for real, once you're happy with the preview.</div>
+  <div id="widget07">
+    <textarea id="w07Input" placeholder='{"spend": {...}, "netWorth": {...}, ...}'></textarea>
+    <div class="w07-buttons">
+      <button class="primary" onclick="w07ApplyLocally()">Apply Locally</button>
+      <button class="cloud" onclick="w07SaveToCloud()">Save to Cloud</button>
+      <button onclick="w07CopyCurrent()">Copy Current Data as JSON</button>
+    </div>
+    <div id="w07Status"></div>
+  </div>
+
+  <div class="app-footer">figures in GBP · single-page build, backed by Firestore</div>
+
+  <footer style="margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-faint); line-height:1.7;">
+    This page renders entirely from your private Firestore database — no financial figures are stored in this
+    file or in the GitHub repository. See README.md for how the Google sign-in and cloud storage are wired up,
+    and firestore.rules for the security rules that actually restrict access.
+  </footer>
+
+</div><!-- #appContent -->
+
+<script>
+/* ============================================================
+   DATA CONTRACT (mirrors DATA-FORMAT.md)
+   netWorth:        { asOf, assets:[{label,amount}], liabilities:[{label,amount}], pensions:{pots:[{label,amount}]} }
+   netWorthHistory: { months:[...], entries:{ "YYYY-MM": {assets, liabilities, pensions} } }
+   spend.monthly:      { category: { "YYYY-MM": total } }
+   spend.transactions: { category: { "YYYY-MM": [{date, desc, amount, source}] } }
+   income:          { months:[...], monthly:{ "YYYY-MM": total } }
+   story.narrative: [ {type:"positive"|"negative"|"neutral", text}, ... ]
+   actions:         [ {text, raisedMonth, done}, ... ]
+   savingsGoals:    [ {label, purpose, targetAmount, targetDate}, ... ]
+
+   Nothing below has real figures baked in — this is deliberate: the
+   repository this file lives in is public, so no real balances,
+   transactions, or targets may ever be committed here. Everything starts
+   empty and is filled in one of two ways:
+     1) Automatically, from Firestore, once you sign in with an authorized
+        Google account (see the module script at the bottom of this file).
+     2) Manually, by pasting a JSON snapshot into Widget 07 and clicking
+        "Apply Locally" to preview it, then "Save to Cloud" to persist it.
+   ============================================================ */
+
+let netWorth = {
+  asOf: null,
+  assets: [],
+  liabilities: [],
+  pensions: { pots: [] }
+};
+
+let netWorthHistory = {
+  months: [],
+  entries: {}
+};
+
+/* story.narrative: bullet-led, each with a sentiment dot (positive/negative/neutral).
+   actions: full-replace list, carried forward + appended each month.
+   Both written by hand (or by Claude, during the monthly update chat) as part
+   of that month's JSON — not computed in-browser. */
+let story = {
+  month: null,
+  narrative: []
+};
+
+let actions = [];
+
+/* income: MERGE — new month(s) only, same pattern as spend/netWorthHistory. */
+let income = {
+  months: [],
+  monthly: {}
+};
+
+/* savingsGoals: `label` must exactly match an asset label in netWorth.assets —
+   that's how the current balance gets pulled in. targetAmount/targetDate both
+   null = tracked balance-only, no fixed goal. */
+let savingsGoals = [];
+
+/* spend: MERGE — new month(s)/categor(y/ies) only. monthly[cat][month] should
+   equal the sum of transactions[cat][month][].amount for that month. */
+let monthly = {};
+let transactions = {};
+
+const SPEND_GROUPS = [
+  { id:"set", label:"Set Spend", cats:["Insurance","Phone/Mobile","Gym & Fitness","Subscriptions","Investments","Pension Contributions","Bank Fees"] },
+  { id:"disc", label:"Discretionary", cats:["Groceries","Dining Out/Takeaway","Fuel/Transport","Retail/Shopping","Fishing/Angling","Kids' Activities"] },
+  { id:"oneoff", label:"One-Off", cats:["Travel/Trips","Entertainment & Family"] },
+  { id:"review", label:"To Be Reviewed", cats:["Cash Withdrawals","To Be Reviewed"] }
+];
+
+/* ============================================================ */
+
+function escHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]);
+}
+
+function renderAsOf(){
+  document.getElementById("asOfLabel").textContent = netWorth.asOf
+    ? ("AS OF " + new Date(netWorth.asOf).toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" }).toUpperCase())
+    : "NO DATA YET";
+}
+
+const fmt2 = (n) => {
+  if (n === null || n === undefined) return "—";
+  const sign = n < 0 ? "-" : "";
+  return sign + "£" + Math.abs(n).toLocaleString("en-GB", { minimumFractionDigits:2, maximumFractionDigits:2 });
+};
+const fmt2Signed = (n) => (n > 0 ? "+" : n < 0 ? "" : "") + fmt2(n);
+const fmt0 = (n) => {
+  if (n === null || n === undefined) return "—";
+  const sign = n < 0 ? "-" : "";
+  return sign + "£" + Math.abs(n).toLocaleString("en-GB", { minimumFractionDigits:0, maximumFractionDigits:0 });
+};
+const sum = arr => arr.reduce((a,b) => a + b.amount, 0);
+
+function toggleSection(id){
+  const el = document.getElementById("section-" + id);
+  const btn = el.querySelector(".section-toggle");
+  const isOpen = el.getAttribute("data-open") === "true";
+  el.setAttribute("data-open", isOpen ? "false" : "true");
+  btn.setAttribute("aria-expanded", isOpen ? "false" : "true");
+}
+
+/* ================= WIDGET 01 — NET POSITION ================= */
+function renderWidget01(){
+  const assetsTotal = sum(netWorth.assets);
+  const liabTotal = sum(netWorth.liabilities);
+  const pensionsTotal = sum(netWorth.pensions.pots);
+  const netWorthTotal = assetsTotal + pensionsTotal - liabTotal;
+  const liquidNetWorth = assetsTotal - liabTotal;
+
+  const months = netWorthHistory.months;
+  const prevKey = months.length > 1 ? months[months.length - 2] : null;
+  const prev = prevKey ? netWorthHistory.entries[prevKey] : null;
+
+  function deltaBlock(current, previous, goodDirection){
+    if (previous === null || previous === undefined) return { hasData:false };
+    const diff = current - previous;
+    const pct = previous !== 0 ? (diff / Math.abs(previous)) * 100 : 0;
+    const isGood = goodDirection === 'up' ? diff > 0 : diff < 0;
+    return { hasData:true, diff, pct, isGood, isFlat: diff === 0 };
+  }
+  function clsFor(delta){
+    if (!delta.hasData || delta.isFlat) return 'neu';
+    return delta.isGood ? 'pos' : 'neg';
+  }
+
+  const assetsDelta = deltaBlock(assetsTotal, prev?.assets, 'up');
+  const liabDelta = deltaBlock(liabTotal, prev?.liabilities, 'down');
+  const pensionsDelta = deltaBlock(pensionsTotal, prev?.pensions, 'up');
+  const netWorthPrev = prev ? (prev.assets + prev.pensions - prev.liabilities) : null;
+  const netDelta = deltaBlock(netWorthTotal, netWorthPrev, 'up');
+
+  const netCls = clsFor(netDelta);
+  document.getElementById("headline").innerHTML = `
+    <div>
+      <div class="headline-label">Total Net Worth</div>
+      <div class="headline-value">${fmt2(netWorthTotal)}</div>
+      <div class="headline-sub">excl. pensions: ${fmt2(liquidNetWorth)}</div>
+    </div>
+    <div class="headline-delta-block">
+      ${netDelta.hasData
+        ? `<div class="headline-delta ${netCls}"><span class="arrow">${netDelta.diff >= 0 ? '▲' : '▼'}</span>${fmt2Signed(netDelta.diff)}</div>
+           <div class="headline-delta-pct">${netDelta.pct >= 0 ? '+' : ''}${netDelta.pct.toFixed(1)}% since ${prevKey}</div>`
+        : `<div class="headline-delta neu">first month tracked</div>
+           <div class="headline-delta-pct">comparisons begin next update</div>`
+      }
+    </div>`;
+
+  function sectionDeltaHTML(delta){
+    const cls = clsFor(delta);
+    if (!delta.hasData) return `<div class="section-delta neu">baseline</div>`;
+    return `<div class="section-delta ${cls}"><span class="arrow">${delta.diff >= 0 ? '▲' : '▼'}</span>${fmt2Signed(delta.diff)}</div>`;
+  }
+  function rowsHTML(items, isLiability=false){
+    return items.map(i => `
+      <div class="row">
+        <div class="row-label">${escHtml(i.label)}</div>
+        <div class="row-value ${isLiability ? 'liab' : ''}">${fmt2(i.amount)}</div>
+      </div>`).join("");
+  }
+  function npSection(id, label, count, total, delta, rowsHtml, isLiability=false, extraNote=""){
+    const cls = clsFor(delta);
+    return `
+      <div class="section ${cls}" data-open="false" id="section-${id}">
+        <button class="section-toggle" aria-expanded="false" onclick="toggleSection('${id}')">
+          <span class="section-left">
+            <span class="chevron">▶</span>
+            <span class="section-label">${label}</span>
+            <span class="section-count">${count}</span>
+          </span>
+          <span class="section-right">
+            ${sectionDeltaHTML(delta)}
+            <span class="section-value ${isLiability ? 'neg-val' : ''}">${fmt2(total)}</span>
+          </span>
+        </button>
+        <div class="detail">${rowsHtml}${extraNote}</div>
+      </div>`;
+  }
+
+  document.getElementById("netPositionSections").innerHTML =
+    npSection("assets", "Assets", netWorth.assets.length + " accounts", assetsTotal, assetsDelta, rowsHTML(netWorth.assets)) +
+    npSection("liabilities", "Liabilities", netWorth.liabilities.length + " accounts", liabTotal, liabDelta, rowsHTML(netWorth.liabilities, true), true) +
+    npSection("pensions", "Pensions", netWorth.pensions.pots.length + " pots", pensionsTotal, pensionsDelta, rowsHTML(netWorth.pensions.pots),
+      false, `<div class="pension-note">Excluded from the "excl. pensions" liquid net worth figure above — not accessible day-to-day.</div>`);
+}
+
+/* ================= WIDGET 02 — STORY OF THE MONTH ================= */
+function renderWidget02(){
+  document.getElementById("storyBullets").innerHTML = story.narrative.length
+    ? story.narrative.map(b => `
+        <div class="story-bullet">
+          <span class="bullet-dot ${b.type}"></span>
+          <span class="story-bullet-text">${escHtml(b.text)}</span>
+        </div>`).join('')
+    : `<div class="story-bullet"><span class="story-bullet-text" style="color:var(--text-faint)">No narrative recorded yet for the current month.</span></div>`;
+
+  const open = actions.filter(a => !a.done);
+  const done = actions.filter(a => a.done);
+
+  function actionRow(a){
+    return `
+      <div class="action-row">
+        <span class="action-check ${a.done ? 'done' : ''}">${a.done ? '✓' : ''}</span>
+        <span class="action-text ${a.done ? 'done' : ''}">${escHtml(a.text)}</span>
+        <span class="action-month">${a.raisedMonth || ''}</span>
+      </div>`;
+  }
+
+  const openSection = `
+    <div class="section neu" data-open="true" id="section-actions-open">
+      <button class="section-toggle" aria-expanded="true" onclick="toggleSection('actions-open')">
+        <span class="section-left">
+          <span class="chevron">▶</span>
+          <span class="section-label">Open Actions</span>
+          <span class="section-count">${open.length}</span>
+        </span>
+      </button>
+      <div class="detail">${open.length ? open.map(actionRow).join('') : '<div class="action-row" style="padding-left:16px;color:var(--text-faint)">Nothing open right now.</div>'}</div>
+    </div>`;
+
+  const doneSection = `
+    <div class="section neu" data-open="false" id="section-actions-done">
+      <button class="section-toggle" aria-expanded="false" onclick="toggleSection('actions-done')">
+        <span class="section-left">
+          <span class="chevron">▶</span>
+          <span class="section-label">Completed</span>
+          <span class="section-count">${done.length}</span>
+        </span>
+      </button>
+      <div class="detail">${done.length ? done.map(actionRow).join('') : '<div class="action-row" style="padding-left:16px;color:var(--text-faint)">None completed yet.</div>'}</div>
+    </div>`;
+
+  document.getElementById("actionsSection").innerHTML = openSection + doneSection;
+}
+
+/* ================= WIDGET 03 — WHAT I SPEND ================= */
+function renderWidget03(){
+  const MONTH_LABEL_MAP = { "01":"JAN","02":"FEB","03":"MAR","04":"APR","05":"MAY","06":"JUN","07":"JUL","08":"AUG","09":"SEP","10":"OCT","11":"NOV","12":"DEC" };
+  const MONTHS = [...new Set(Object.values(monthly).flatMap(catMonths => Object.keys(catMonths)))].sort();
+  const MONTH_LABELS = Object.fromEntries(MONTHS.map(m => [m, MONTH_LABEL_MAP[m.slice(5,7)] + " " + m.slice(2,4)]));
+  const CURRENT_MONTH = MONTHS[MONTHS.length - 1];
+  const AVG_MONTHS = MONTHS.slice(0, -1);
+
+  // Any category present in the data but not assigned to a SPEND_GROUPS
+  // bucket would otherwise render nowhere and its spend would be silently
+  // invisible — catch it in a synthetic "Uncategorised" group instead.
+  const knownCats = new Set(SPEND_GROUPS.flatMap(g => g.cats));
+  const extraCats = Object.keys(monthly).filter(c => !knownCats.has(c)).sort();
+  const allGroups = extraCats.length
+    ? [...SPEND_GROUPS, { id:"uncategorised", label:"Uncategorised", cats: extraCats }]
+    : SPEND_GROUPS;
+
+  function catAvg(cat){
+    if (AVG_MONTHS.length === 0) return null;
+    const vals = AVG_MONTHS.map(m => (monthly[cat]?.[m]) || 0);
+    return vals.reduce((a,b)=>a+b,0) / vals.length;
+  }
+  function catCurrent(cat){ return (monthly[cat]?.[CURRENT_MONTH]) || 0; }
+
+  function groupTotals(group){
+    const perMonth = {};
+    MONTHS.forEach(m => { perMonth[m] = group.cats.reduce((s,c) => s + ((monthly[c]?.[m]) || 0), 0); });
+    const avg = AVG_MONTHS.length === 0 ? null : AVG_MONTHS.reduce((s,m) => s + perMonth[m], 0) / AVG_MONTHS.length;
+    return { perMonth, avg, cur: perMonth[CURRENT_MONTH] };
+  }
+  function deltaHTML(cur, avg){
+    if (avg === null) return { cls:'neu', html:'baseline' };
+    const diff = cur - avg;
+    const isGood = diff <= 0;
+    const cls = Math.abs(diff) < 0.5 ? '' : (isGood ? 'pos' : 'neg');
+    const arrow = diff > 0 ? '▲' : (diff < 0 ? '▼' : '—');
+    return { cls, html: `<span class="arrow">${arrow}</span>${fmt0(Math.abs(diff))}` };
+  }
+  function monthCellsHTML(cat){
+    return MONTHS.map(m => {
+      const v = (monthly[cat]?.[m]) || 0;
+      const cls = v === 0 ? 'zero' : '';
+      return `<td class="month-cell ${cls}" ondblclick="openDrilldown('${cat.replace(/'/g,"\\'")}','${m}')">${v === 0 ? '·' : fmt0(v)}</td>`;
+    }).join('');
+  }
+  function categoryRowHTML(cat){
+    const avg = catAvg(cat);
+    const cur = catCurrent(cat);
+    const d = deltaHTML(cur, avg);
+    return `
+      <tr>
+        <td class="catcell">${cat}</td>
+        ${monthCellsHTML(cat)}
+        <td class="avg-cell">${fmt0(avg)}</td>
+        <td class="cur-cell">${fmt0(cur)}</td>
+        <td class="delta-cell ${d.cls}">${d.html}</td>
+      </tr>`;
+  }
+  function headerRowHTML(){
+    return `
+      <tr>
+        <th class="catcell">Category</th>
+        ${MONTHS.map(m => `<th>${MONTH_LABELS[m]}</th>`).join('')}
+        <th>Avg</th>
+        <th>${MONTH_LABELS[CURRENT_MONTH]}</th>
+        <th>vs Avg</th>
+      </tr>`;
+  }
+  function groupSectionHTML(group){
+    const t = groupTotals(group);
+    const d = deltaHTML(t.cur, t.avg);
+    const cls = d.cls || 'neu';
+    const rows = group.cats.map(categoryRowHTML).join('');
+    const totalRow = `
+      <tr class="grouptotal">
+        <td class="catcell">Group total</td>
+        ${MONTHS.map(m => `<td>${fmt0(t.perMonth[m])}</td>`).join('')}
+        <td class="avg-cell">${fmt0(t.avg)}</td>
+        <td class="cur-cell">${fmt0(t.cur)}</td>
+        <td class="delta-cell ${d.cls}">${d.html}</td>
+      </tr>`;
+    return `
+      <div class="section ${cls}" data-open="false" id="section-${group.id}">
+        <button class="section-toggle" aria-expanded="false" onclick="toggleSection('${group.id}')">
+          <span class="section-left">
+            <span class="chevron">▶</span>
+            <span class="section-label">${group.label}</span>
+            <span class="section-count">${group.cats.length} categories</span>
+          </span>
+          <span class="section-right">
+            <span class="section-meta">avg ${fmt0(t.avg)}</span>
+            <span class="section-delta ${d.cls}">${d.html}</span>
+            <span class="section-value">${fmt0(t.cur)}</span>
+          </span>
+        </button>
+        <div class="detail">
+          <div class="matrix-scroll">
+            <table><thead>${headerRowHTML()}</thead><tbody>${rows}${totalRow}</tbody></table>
+          </div>
+          <div class="hint">double-click a month cell to see the transactions behind it</div>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById("spendGroups").innerHTML = MONTHS.length
+    ? allGroups.map(groupSectionHTML).join('')
+    : `<div class="widget-sub">No spend data yet — sign in and load a monthly snapshot via Widget 07 below.</div>`;
+
+  const SOURCE_LABELS = { current_account:"Current Account", barclaycard:"Barclaycard", amex:"Amex" };
+  const ALL_CATEGORIES = allGroups.flatMap(g => g.cats);
+  let ddContext = null; // { cat, month, items }
+
+  window.openDrilldown = function(cat, month){
+    const items = (transactions[cat] && transactions[cat][month]) || [];
+    ddContext = { cat, month, items };
+    const panel = document.getElementById("drilldown");
+    document.getElementById("ddTitle").innerHTML =
+      `${escHtml(cat)} <span>· ${MONTH_LABELS[month]} · ${items.length} transaction${items.length===1?'':'s'} · ${fmt2(items.reduce((s,i)=>s+i.amount,0))}</span>`;
+    document.getElementById("ddRows").innerHTML = items.length
+      ? items.map((i, idx) => `
+          <div class="dd-row" ondblclick="openRecategorise(${idx}, event)">
+            <span class="dd-date">${i.date.slice(5)}</span>
+            <span class="dd-desc">${escHtml(i.desc)}<span class="dd-source">(${escHtml(SOURCE_LABELS[i.source] || i.source || 'unknown')})</span></span>
+            <span class="dd-amt">${fmt2(i.amount)}</span>
+          </div>`).join('')
+      : `<div class="dd-empty">No transactions recorded for this category/month.</div>`;
+    panel.classList.add("open");
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  };
+  window.closeDrilldown = function(){ document.getElementById("drilldown").classList.remove("open"); };
+
+  // ---- recategorise / delete: UI stubs only. Neither writes anywhere yet.
+  // Move  -> wire to a Firestore transaction that removes the item from
+  //          spend.transactions[oldCat][month]/spend.monthly[oldCat][month]
+  //          and adds it to the new category/month.
+  // Delete -> for transactions that turn out to be costs fronted personally
+  //          that net off once moved/reimbursed elsewhere — wire to a
+  //          Firestore transaction that removes the item from
+  //          spend.transactions[cat][month] and subtracts it from
+  //          spend.monthly[cat][month].
+  // (Full-snapshot Save to Cloud in Widget 07 IS wired up — this per-row
+  // move/delete UI is a preview of a future feature, not that mechanism.)
+  window.openRecategorise = function(idx, evt){
+    document.querySelectorAll('.dd-recat').forEach(el => el.remove());
+    const item = ddContext.items[idx];
+    const options = ALL_CATEGORIES.map(c => `<option value="${c}" ${c === ddContext.cat ? 'selected' : ''}>${c}</option>`).join('');
+    const shortDesc = item.desc.slice(0,28) + (item.desc.length>28?'…':'');
+    const panel = document.createElement('div');
+    panel.className = 'dd-recat';
+    panel.innerHTML = `
+      <span>"${escHtml(shortDesc)}" →</span>
+      <select id="recatSelect">${options}</select>
+      <button onclick="confirmRecategorise(${idx})">Move</button>
+      <button onclick="confirmDelete(${idx})" class="danger">Delete — nets off elsewhere</button>
+      <button onclick="this.closest('.dd-recat').remove()">Cancel</button>
+      <span class="dd-recat-note">Preview only — not wired to Firestore yet, nothing is saved.</span>
+    `;
+    evt.currentTarget.insertAdjacentElement('afterend', panel);
+  };
+  window.confirmRecategorise = function(idx){
+    const newCat = document.getElementById('recatSelect').value;
+    const note = document.getElementById('recatSelect').closest('.dd-recat').querySelector('.dd-recat-note');
+    note.textContent = `Would move to "${newCat}" — stub only, no data changed. Wire to Firestore in a future update.`;
+    console.log('[recategorise stub]', ddContext.items[idx], '->', newCat);
+  };
+  window.confirmDelete = function(idx){
+    const panel = document.querySelector('.dd-recat');
+    const note = panel.querySelector('.dd-recat-note');
+    note.textContent = `Would remove this transaction from spend entirely (treated as a cost netting off elsewhere) — stub only, no data changed.`;
+    console.log('[delete stub]', ddContext.items[idx]);
+  };
+}
+
+/* ================= SHARED: diverging bar chart (SVG, no library) ================= */
+function divergingBarChart(containerId, months, posSeries, negSeries, opts){
+  const { posLabel, negLabel, posColor, negColor, monthLabelFn, valueFmt } = opts;
+  const missingMonths = opts.missingMonths || [];
+  const barW = 34, gap = 26, padTop = 18, padBottom = 34, axisGap = 10;
+  const chartW = months.length * (barW + gap) + gap;
+  const maxVal = Math.max(1, ...months.map(m => Math.max(posSeries[m]||0, negSeries[m]||0)));
+  const halfH = 110;
+  const totalH = halfH * 2 + padTop + padBottom;
+  const zeroY = padTop + halfH;
+  const scale = v => (v / maxVal) * (halfH - 10);
+
+  let bars = '';
+  months.forEach((m, i) => {
+    const x = gap + i * (barW + gap);
+    const isMissing = missingMonths.includes(m);
+    const pv = posSeries[m] || 0;
+    const nv = negSeries[m] || 0;
+    const ph = scale(pv);
+    const nh = scale(nv);
+    const net = pv - nv;
+    const netColor = net >= 0 ? posColor : negColor;
+
+    if (isMissing){
+      bars += `<rect x="${x}" y="${zeroY - 14}" width="${barW}" height="14" fill="none" stroke="${netColor}" stroke-dasharray="3,3" opacity="0.5"/>`;
+      bars += `<text x="${x+barW/2}" y="${zeroY + 14}" text-anchor="middle" class="chart-lbl chart-lbl-faint">pending</text>`;
+    } else {
+      bars += `<rect x="${x}" y="${zeroY - ph}" width="${barW}" height="${ph}" fill="${posColor}"/>`;
+      bars += `<rect x="${x}" y="${zeroY}" width="${barW}" height="${nh}" fill="${negColor}"/>`;
+      bars += `<text x="${x+barW/2}" y="${zeroY - ph - 6}" text-anchor="middle" class="chart-lbl">${valueFmt(pv)}</text>`;
+      bars += `<text x="${x+barW/2}" y="${zeroY + nh + 14}" text-anchor="middle" class="chart-lbl">${valueFmt(nv)}</text>`;
+      bars += `<circle cx="${x+barW/2}" cy="${zeroY - (net>=0 ? scale(net) : -scale(-net))}" r="2.5" fill="${netColor}"/>`;
+    }
+    bars += `<text x="${x+barW/2}" y="${totalH - 10}" text-anchor="middle" class="chart-lbl chart-lbl-month">${monthLabelFn(m)}</text>`;
+  });
+
+  const svg = `
+    <svg viewBox="0 0 ${chartW} ${totalH}" width="100%" style="min-width:${chartW}px" preserveAspectRatio="xMinYMid meet">
+      <style>
+        .chart-lbl{ font-family:'IBM Plex Mono',monospace; font-size:9.5px; fill:var(--text-dim); }
+        .chart-lbl-faint{ fill:var(--text-faint); font-style:italic; }
+        .chart-lbl-month{ fill:var(--text-faint); font-family:'IBM Plex Sans',sans-serif; letter-spacing:0.05em; }
+      </style>
+      <line x1="0" y1="${zeroY}" x2="${chartW}" y2="${zeroY}" stroke="var(--hairline)" stroke-width="1"/>
+      ${bars}
+    </svg>`;
+
+  document.getElementById(containerId).innerHTML = `
+    <div class="chart-block">
+      <div class="chart-legend">
+        <span><span class="legend-swatch" style="background:${posColor}"></span>${posLabel}</span>
+        <span><span class="legend-swatch" style="background:${negColor}"></span>${negLabel}</span>
+        <span><span class="legend-swatch" style="background:var(--text-faint);border-radius:50%;width:6px;height:6px"></span>Net (dot)</span>
+      </div>
+      <div class="chart-scroll"><div class="chart-svg-wrap">${svg}</div></div>
+    </div>`;
+}
+
+const MONTH_LABEL_FN = m => { const mm = {"01":"JAN","02":"FEB","03":"MAR","04":"APR","05":"MAY","06":"JUN","07":"JUL","08":"AUG","09":"SEP","10":"OCT","11":"NOV","12":"DEC"}; return mm[m.slice(5,7)] + " " + m.slice(2,4); };
+
+/* ================= WIDGET 04 — NET WORTH TRAJECTORY ================= */
+function renderWidget04(){
+  const months = netWorthHistory.months;
+  if (months.length === 0){
+    document.getElementById("netWorthChart").innerHTML = `<div class="widget-sub">No history yet — record a month's totals in netWorthHistory via Widget 07 below.</div>`;
+    return;
+  }
+  const assetsSeries = {}, liabSeries = {};
+  months.forEach(m => {
+    assetsSeries[m] = netWorthHistory.entries[m].assets;
+    liabSeries[m] = netWorthHistory.entries[m].liabilities;
+  });
+
+  divergingBarChart("netWorthChart", months, assetsSeries, liabSeries, {
+    posLabel: "Assets", negLabel: "Liabilities",
+    posColor: "var(--pos)", negColor: "var(--neg)",
+    monthLabelFn: MONTH_LABEL_FN, valueFmt: fmt0
+  });
+
+  const rows = months.map(m => `
+    <div class="row">
+      <div class="row-label">${MONTH_LABEL_FN(m)}</div>
+      <div class="row-value">assets ${fmt0(assetsSeries[m])} · liabilities ${fmt0(liabSeries[m])} · net ${fmt0(assetsSeries[m]-liabSeries[m])}</div>
+    </div>`).join('');
+  document.getElementById("netWorthChart").insertAdjacentHTML('beforeend', `
+    <div class="section neu" data-open="false" id="section-nwdetail">
+      <button class="section-toggle" aria-expanded="false" onclick="toggleSection('nwdetail')">
+        <span class="section-left"><span class="chevron">▶</span><span class="section-label">Monthly Detail</span><span class="section-count">${months.length} month${months.length===1?'':'s'}</span></span>
+      </button>
+      <div class="detail">${rows}</div>
+    </div>`);
+  if (months.length < 2){
+    document.getElementById("netWorthChart").insertAdjacentHTML('beforeend',
+      `<div class="chart-note">Only one month tracked — this chart becomes genuinely useful once a few months of history build up.</div>`);
+  }
+}
+
+/* ================= WIDGET 05 — INCOME & OUTGOINGS ================= */
+function renderWidget05(){
+  const spendMonths = [...new Set(Object.values(monthly).flatMap(c => Object.keys(c)))].sort();
+  const allMonths = [...new Set([...income.months, ...spendMonths])].sort();
+  if (allMonths.length === 0){
+    document.getElementById("cashFlowChart").innerHTML = `<div class="widget-sub">No income or spend data yet.</div>`;
+    return;
+  }
+  const outgoings = {};
+  allMonths.forEach(m => {
+    outgoings[m] = Object.values(monthly).reduce((s, catMonths) => s + (catMonths[m] || 0), 0);
+  });
+  const missing = allMonths.filter(m => !(m in income.monthly));
+
+  divergingBarChart("cashFlowChart", allMonths, income.monthly, outgoings, {
+    posLabel: "Income", negLabel: "Outgoings",
+    posColor: "var(--pos)", negColor: "var(--neg)",
+    monthLabelFn: MONTH_LABEL_FN, valueFmt: fmt0, missingMonths: missing
+  });
+
+  const rows = allMonths.map(m => {
+    const inc = income.monthly[m];
+    const out = outgoings[m];
+    const net = (inc !== undefined) ? inc - out : null;
+    return `
+      <div class="row">
+        <div class="row-label">${MONTH_LABEL_FN(m)}</div>
+        <div class="row-value">in ${inc !== undefined ? fmt0(inc) : '—'} · out ${fmt0(out)} · net ${net !== null ? fmt0(net) : '—'}</div>
+      </div>`;
+  }).join('');
+  document.getElementById("cashFlowChart").insertAdjacentHTML('beforeend', `
+    <div class="section neu" data-open="false" id="section-cfdetail">
+      <button class="section-toggle" aria-expanded="false" onclick="toggleSection('cfdetail')">
+        <span class="section-left"><span class="chevron">▶</span><span class="section-label">Monthly Detail</span><span class="section-count">${allMonths.length} months</span></span>
+      </button>
+      <div class="detail">${rows}</div>
+    </div>`);
+}
+
+/* ================= WIDGET 06 — SAVINGS ================= */
+function renderWidget06(){
+  const assetByLabel = Object.fromEntries(netWorth.assets.map(a => [a.label, a.amount]));
+  const today = netWorth.asOf ? new Date(netWorth.asOf) : new Date(0);
+
+  function goalCard(g){
+    const balance = assetByLabel[g.label];
+    if (balance === undefined){
+      return `<div class="goal-card"><div class="goal-top"><span class="goal-label">${escHtml(g.label)}</span></div>
+              <div class="goal-notrack">No matching asset found for this label — check it matches netWorth.assets exactly.</div></div>`;
+    }
+    if (g.targetAmount === null){
+      return `
+        <div class="goal-card">
+          <div class="goal-top"><span class="goal-label">${escHtml(g.label)}</span><span class="goal-balance">${fmt2(balance)}</span></div>
+          <div class="goal-purpose">${escHtml(g.purpose)}</div>
+          <div class="goal-notrack">Tracked, no fixed target.</div>
+        </div>`;
+    }
+    const pct = Math.min(100, (balance / g.targetAmount) * 100);
+    const achieved = balance >= g.targetAmount;
+    const remaining = Math.max(0, g.targetAmount - balance);
+    let dateInfo = '';
+    if (g.targetDate){
+      const target = new Date(g.targetDate);
+      const monthsLeft = Math.max(0.1, (target - today) / (1000*60*60*24*30.44));
+      const perMonth = remaining / monthsLeft;
+      dateInfo = achieved
+        ? `achieved`
+        : `${fmt2(perMonth)}/mo needed to hit ${new Date(g.targetDate).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}`;
+    } else {
+      dateInfo = achieved ? 'achieved' : `${fmt2(remaining)} to go`;
+    }
+    return `
+      <div class="goal-card">
+        <div class="goal-top">
+          <span class="goal-label">${escHtml(g.label)}</span>
+          <span class="goal-balance">${fmt2(balance)}<span class="goal-target"> / ${fmt2(g.targetAmount)}</span></span>
+        </div>
+        <div class="goal-purpose">${escHtml(g.purpose)}</div>
+        <div class="goal-bar-track"><div class="goal-bar-fill ${achieved ? 'achieved' : ''}" style="width:${pct}%"></div></div>
+        <div class="goal-meta-row"><span>${pct.toFixed(0)}% of target</span><span>${dateInfo}</span></div>
+      </div>`;
+  }
+
+  document.getElementById("savingsGoals").innerHTML = savingsGoals.length
+    ? savingsGoals.map(goalCard).join('')
+    : `<div class="widget-sub">No savings goals set yet.</div>`;
+}
+
+/* ================= WIDGET 07 — MONTHLY DATA UPDATE ================= */
+/* Merge engine matching DATA-FORMAT.md exactly:
+   - spend, netWorthHistory, income  -> MERGE (only new months touched, rest untouched)
+   - netWorth, savingsGoals, story, actions -> FULL REPLACE if present, else untouched
+   Apply Locally mutates in-page state only; Save to Cloud persists it to
+   Firestore via window.__saveStateToCloud (wired up in the module script
+   at the bottom of this file). */
+
+function w07Status(msg, cls){
+  const el = document.getElementById('w07Status');
+  el.textContent = msg;
+  el.className = 'show ' + cls;
+}
+
+function mergeIncoming(incoming){
+  const log = [];
+
+  if (incoming.spend){
+    if (incoming.spend.monthly){
+      for (const cat in incoming.spend.monthly){
+        monthly[cat] = monthly[cat] || {};
+        Object.assign(monthly[cat], incoming.spend.monthly[cat]);
+      }
+      log.push(`spend.monthly: merged ${Object.keys(incoming.spend.monthly).length} categor${Object.keys(incoming.spend.monthly).length===1?'y':'ies'}`);
+    }
+    if (incoming.spend.transactions){
+      for (const cat in incoming.spend.transactions){
+        transactions[cat] = transactions[cat] || {};
+        Object.assign(transactions[cat], incoming.spend.transactions[cat]);
+      }
+    }
+  }
+
+  if (incoming.netWorthHistory && incoming.netWorthHistory.entries){
+    Object.assign(netWorthHistory.entries, incoming.netWorthHistory.entries);
+    netWorthHistory.months = Object.keys(netWorthHistory.entries).sort();
+    log.push(`netWorthHistory: merged ${Object.keys(incoming.netWorthHistory.entries).length} month(s), now ${netWorthHistory.months.length} total`);
+  }
+
+  if (incoming.income && incoming.income.monthly){
+    Object.assign(income.monthly, incoming.income.monthly);
+    income.months = Object.keys(income.monthly).sort();
+    log.push(`income: merged ${Object.keys(incoming.income.monthly).length} month(s)`);
+  }
+
+  ['netWorth','savingsGoals','story','actions'].forEach(key => {
+    if (incoming[key] !== undefined){
+      if (key === 'netWorth') netWorth = incoming.netWorth;
+      if (key === 'savingsGoals') savingsGoals = incoming.savingsGoals;
+      if (key === 'story') story = incoming.story;
+      if (key === 'actions') actions = incoming.actions;
+      log.push(`${key}: replaced`);
+    }
+  });
+
+  return log;
+}
+
+function currentStateSnapshot(){
+  return {
+    netWorth, savingsGoals, story, actions, income,
+    netWorthHistory,
+    spend: {
+      months: [...new Set(Object.values(monthly).flatMap(c => Object.keys(c)))].sort(),
+      monthly, transactions
+    }
+  };
+}
+
+function w07ApplyLocally(){
+  const raw = document.getElementById('w07Input').value.trim();
+  if (!raw){ w07Status('Paste some JSON first.', 'err'); return; }
+  let incoming;
+  try {
+    incoming = JSON.parse(raw);
+  } catch(e){
+    w07Status('Invalid JSON — ' + e.message, 'err');
+    return;
+  }
+  const knownKeys = ['spend','netWorth','netWorthHistory','income','savingsGoals','story','actions'];
+  const unknown = Object.keys(incoming).filter(k => !knownKeys.includes(k));
+  try {
+    const log = mergeIncoming(incoming);
+    renderAll();
+    let msg = 'Applied locally (this page only — refresh will lose it unless you also Save to Cloud):\n' + (log.length ? log.join('\n') : 'No recognised keys found — nothing changed.');
+    if (unknown.length) msg += `\n\nNote: unrecognised key(s) ignored: ${unknown.join(', ')}`;
+    w07Status(msg, log.length ? 'ok' : 'err');
+  } catch(e){
+    w07Status('Merge failed — ' + e.message + '\n(data was not changed)', 'err');
+  }
+}
+
+async function w07SaveToCloud(){
+  if (typeof window.__saveStateToCloud !== 'function'){
+    w07Status('Cloud storage isn\'t connected yet — check the Firebase config near the bottom of this file (see README.md).', 'err');
+    return;
+  }
+  w07Status('Saving…', 'info');
+  try {
+    await window.__saveStateToCloud(currentStateSnapshot());
+    w07Status('Saved to cloud.', 'ok');
+    const cs = document.getElementById('cloudStatus');
+    if (cs) cs.textContent = 'Loaded from cloud (just saved).';
+  } catch(e){
+    w07Status('Save failed — ' + e.message, 'err');
+  }
+}
+
+function w07CopyCurrent(){
+  const json = JSON.stringify(currentStateSnapshot(), null, 2);
+  navigator.clipboard.writeText(json).then(() => {
+    w07Status('Current data copied to clipboard as JSON.', 'ok');
+  }).catch(() => {
+    document.getElementById('w07Input').value = json;
+    w07Status('Clipboard access blocked — pasted current data into the box above instead.', 'info');
+  });
+}
+
+function renderAll(){
+  renderAsOf();
+  renderWidget01();
+  renderWidget02();
+  renderWidget03();
+  renderWidget04();
+  renderWidget05();
+  renderWidget06();
+}
+renderAll();
+
+/* =========================================================================
+   Hooks called by the Firebase module script at the bottom of this file,
+   once a sign-in is confirmed and authorized.
+   ========================================================================= */
+window.__applyCloudState = function(cloudData){
+  if (cloudData) mergeIncoming(cloudData);
+  renderAll();
+  const s = document.getElementById('cloudStatus');
+  if (s) s.textContent = cloudData
+    ? 'Loaded from cloud.'
+    : 'No cloud data yet — paste your baseline into Widget 07 below, then click "Save to Cloud" to initialize it.';
+};
+window.__cloudLoadError = function(err){
+  renderAll();
+  const s = document.getElementById('cloudStatus');
+  if (s) s.textContent = 'Could not reach the cloud database: ' + err.message;
+};
+</script>
+
+<!-- =========================================================================
+     FIREBASE: Google sign-in + Firestore storage.
+
+     SETUP REQUIRED — see README.md for the full walkthrough. In short:
+       1. Create a free Firebase project at https://console.firebase.google.com
+       2. Add a Web App to it, copy the config object it gives you, and
+          paste it into `firebaseConfig` below.
+       3. Enable "Google" as a sign-in provider (Authentication > Sign-in method).
+       4. Create a Firestore database (production mode is fine).
+       5. Paste the contents of firestore.rules into Firestore > Rules, with
+          your real Google account email filled in — THAT is what actually
+          restricts access, not this file.
+       6. Optionally fill in ALLOWED_EMAILS below too, purely so this page
+          can show a friendly "not authorized" message instead of a blank
+          Firestore permission error.
+     ========================================================================= -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  // ---- 1) Fill this in with YOUR Firebase project's config. These values
+  // are not secret (they're meant to ship in client-side code) — real
+  // security comes from firestore.rules, not from hiding this object. ----
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // ---- 2) Optional friendly-message allowlist. Leave empty to skip the
+  // client-side check (Firestore rules still protect the data either way).
+  // Fill in to make an unauthorized sign-in show a clear message instead
+  // of a silent permission error. Keep this in sync with firestore.rules. ----
+  const ALLOWED_EMAILS = [
+    // "you@gmail.com"
+  ];
+
+  const gateEl = document.getElementById('authGate');
+  const contentEl = document.getElementById('appContent');
+  const gateStatusEl = document.getElementById('authGateStatus');
+  const signInBtn = document.getElementById('signInBtn');
+  const signOutBtn = document.getElementById('signOutBtn');
+
+  const configured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'YOUR_API_KEY';
+  if(!configured){
+    gateStatusEl.textContent = 'Firebase isn\'t configured yet. Open personal-finance-tracker.html, find the firebaseConfig object near the bottom, and fill it in with your Firebase project\'s details (see README.md).';
+    signInBtn.style.display = 'none';
+  } else {
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+    const SNAPSHOT_DOC = doc(db, 'household', 'snapshot');
+
+    signInBtn.style.display = 'inline-flex';
+    signInBtn.addEventListener('click', () => {
+      gateStatusEl.textContent = 'Opening Google sign-in…';
+      signInWithPopup(auth, provider).catch(err => {
+        const msg = err.message || '';
+        const looksLikeStorageIssue = msg.includes('missing initial state') || msg.includes('sessionStorage') || err.code === 'auth/web-storage-unsupported' || err.code === 'auth/operation-not-supported-in-this-environment';
+        gateStatusEl.textContent = looksLikeStorageIssue
+          ? 'Sign-in failed — this browser is blocking the storage Google Sign-In needs. If you opened this link from WhatsApp, Instagram, or a similar app, open it in Safari or Chrome instead (share icon → Open in Safari) and try again.'
+          : 'Sign-in failed: ' + err.message;
+      });
+    });
+    signOutBtn.addEventListener('click', () => signOut(auth));
+
+    window.__saveStateToCloud = async function(stateObj){
+      await setDoc(SNAPSHOT_DOC, {
+        ...stateObj,
+        updatedAt: serverTimestamp(),
+        updatedBy: auth.currentUser ? auth.currentUser.email : null
+      });
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if(!user){
+        contentEl.style.display = 'none';
+        gateEl.style.display = 'flex';
+        signOutBtn.style.display = 'none';
+        gateStatusEl.textContent = 'Sign in with an authorized Google account to view your finance tracker.';
+        return;
+      }
+
+      const allowed = ALLOWED_EMAILS.length === 0 || ALLOWED_EMAILS.includes(user.email);
+      if(!allowed){
+        contentEl.style.display = 'none';
+        gateEl.style.display = 'flex';
+        signOutBtn.style.display = 'inline-block';
+        gateStatusEl.textContent = `Signed in as ${user.email}, but this account isn't on the allowlist.`;
+        return;
+      }
+
+      gateEl.style.display = 'none';
+      contentEl.style.display = 'block';
+      signOutBtn.style.display = 'inline-block';
+
+      try {
+        const snap = await getDoc(SNAPSHOT_DOC);
+        window.__applyCloudState(snap.exists() ? snap.data() : null);
+      } catch(err){
+        window.__cloudLoadError(err);
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

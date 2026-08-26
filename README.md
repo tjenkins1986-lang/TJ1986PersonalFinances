@@ -1,37 +1,55 @@
 # TJ1986 Personal Finances
 
-A private financial dashboard for tracking net worth, spending, savings
-goals, and monthly forecasts. Single static page (`index.html`), gated
-behind Google sign-in, backed by a private Firestore database.
+A private financial dashboard for tracking net worth, spending, income
+vs. outgoings, and savings goals. Single static page
+(`personal-finance-tracker.html`), gated behind Google sign-in, backed by
+a private Firestore database. `index.html` is just a redirect stub to
+that file — see **Why two HTML files?** below.
 
 This started as a fork of [21ForthCresFinance](https://github.com/tjenkins1986-lang/21ForthCresFinance),
-a joint household version of the same app. The two are intentionally
-**separate repos with separate Firebase projects** — no shared data,
-no shared sign-in allowlist. The joint-household shape (a two-person
-contribution split, "What We Contribute", a shared forecast widget) has
-been stripped out in favour of a single-person layout — see the widget
-list below.
+a joint household version of the same app, then went through a
+single-person adaptation of that household layout. Both of those are
+retired now — this is a from-scratch rebuild around how one person
+actually uses it, not a household app with the second person removed.
 
 ## Widgets
 
-1. **Net Worth Summary** — assets, property equity, pensions (a single
-   flat list of pots, no per-person split).
-2. **Story of the Month** — a short written recap plus key spend numbers.
-3. **Where I Spend** — category spend vs. a 6-month rolling average.
-4. **Savings Goals** — progress and required monthly contribution per goal.
-5. **Rolling Actions** — a standing, checkable to-do list.
-6. **Net Worth Trajectory** — a month-by-month chart and table of assets,
-   liabilities, pensions and net worth over time.
-7. **Monthly Data Update** — the JSON paste/cloud-sync panel.
+1. **Net Position** — assets, liabilities, pensions, as accordion
+   sections with a headline net worth figure and month-on-month deltas.
+2. **Story of the Month** — sentiment-tagged narrative bullets, plus a
+   standing open/completed actions list.
+3. **What I Spend** — a category spend matrix (one row per category,
+   one column per month) grouped into Set Spend / Discretionary /
+   One-Off / To Be Reviewed, with a running average and double-click
+   drill-down to individual transactions.
+4. **Net Worth Trajectory** — a diverging bar chart of assets vs.
+   liabilities, month on month.
+5. **Income & Outgoings** — income vs. total spend per month, with
+   pending (not-yet-landed) months shown explicitly rather than as zero.
+6. **Savings** — goal cards, balance pulled from Net Position by
+   matching account label, required monthly contribution for dated goals.
+7. **Monthly Data Update** — the JSON paste/cloud-sync panel: Apply
+   Locally (preview), Save to Cloud (persist), Copy Current Data as JSON.
+
+See `DATA-FORMAT.md` for the exact JSON schema each widget reads.
+
+## Why two HTML files?
+
+GitHub Pages always serves `index.html` for the site root — that's a
+fixed convention of static hosting, not something this repo's deploy
+workflow controls. So `index.html` stays in place as a two-line redirect
+stub, and the actual app lives in `personal-finance-tracker.html`. If
+you're editing the app, that's the file to open — `index.html` should
+essentially never need to change.
 
 ## Why there's no data in this repo
 
 This repository is **public**, and the page is served as plain static
 files (GitHub Pages) — anyone who can load the URL can also view-source it
 or `git clone` this repo. So no real balances or transactions are ever
-committed here. `index.html` ships as an empty shell; every widget loads
-its data live from Firestore, only after a Google sign-in that Firestore's
-own security rules approve.
+committed here. `personal-finance-tracker.html` ships as an empty shell;
+every widget loads its data live from Firestore, only after a Google
+sign-in that Firestore's own security rules approve.
 
 ## One-time setup
 
@@ -57,11 +75,11 @@ const firebaseConfig = {
 };
 ```
 
-Copy this whole object. In `index.html`, find the `firebaseConfig` object
-near the bottom of the file (inside the last `<script type="module">`
-block) and replace the placeholder values with your real ones. These
-values are not secret — they're meant to be public in client-side code —
-so it's fine to commit this change.
+Copy this whole object. In `personal-finance-tracker.html`, find the
+`firebaseConfig` object near the bottom of the file (inside the last
+`<script type="module">` block) and replace the placeholder values with
+your real ones. These values are not secret — they're meant to be public
+in client-side code — so it's fine to commit this change.
 
 ### 3. Enable Google sign-in
 In the Firebase Console: **Authentication** > **Sign-in method** > enable
@@ -84,9 +102,10 @@ This is what actually restricts who can read or write your data — the
 sign-in screen in the app is just UI.
 
 Also fill in the same email in the `ALLOWED_EMAILS` array near the bottom
-of `index.html`, so the app can show a friendly "not authorized" message
-instead of a confusing permission error if the wrong account signs in.
-This part is cosmetic; the Firestore rules are what matters.
+of `personal-finance-tracker.html`, so the app can show a friendly "not
+authorized" message instead of a confusing permission error if the wrong
+account signs in. This part is cosmetic; the Firestore rules are what
+matters.
 
 ### 7. Enable GitHub Pages
 This repo already has a GitHub Actions workflow (`.github/workflows/deploy-pages.yml`)
@@ -97,6 +116,9 @@ that deploys on every push to `main`. In this repo on GitHub: **Settings**
 ```
 https://<your-github-username>.github.io/TJ1986PersonalFinances/
 ```
+
+(That URL loads `index.html`, which immediately redirects to
+`personal-finance-tracker.html` — same effective page.)
 
 ### 8. Seed your real data
 Once the site is live and Firebase is wired up:
@@ -117,31 +139,40 @@ Once the site is live and Firebase is wired up:
 
 Widget 07 (**Monthly Data Update**) accepts a JSON object with any of
 these top-level keys — only the keys you include get replaced (or, for
-`spend`/`netWorthHistory`, merged in), everything else is left as-is. See
-`DATA-FORMAT.md` for the full schema.
+`spend`/`netWorthHistory`/`income`, merged in), everything else is left
+as-is. See `DATA-FORMAT.md` for the full schema.
 
 ## Local testing
 
-You can open `index.html` directly in a browser (`file://`) to check
-layout and styling, but sign-in won't work over `file://` — Firebase Auth
-needs `http://` or `https://`. Firebase's authorized domains list
-includes `localhost` by default, so running any static file server
-locally (e.g. `python3 -m http.server`) and visiting
-`http://localhost:8000` will let you test the full sign-in flow before
-it's live on GitHub Pages.
+You can open `personal-finance-tracker.html` directly in a browser
+(`file://`) to check layout and styling, but sign-in won't work over
+`file://` — Firebase Auth needs `http://` or `https://`. Firebase's
+authorized domains list includes `localhost` by default, so running any
+static file server locally (e.g. `python3 -m http.server`) and visiting
+`http://localhost:8000/personal-finance-tracker.html` will let you test
+the full sign-in flow before it's live on GitHub Pages.
+
+## Known limitation
+
+Widget 03's per-transaction "Move" / "Delete" controls are a preview-only
+UI stub — they don't write anywhere yet (see `DATA-FORMAT.md`'s note on
+this). Recategorising a transaction today means editing your source data
+and repasting that month's `spend` via Widget 07.
 
 ## Architecture notes
 
 - **Hosting:** GitHub Pages, deployed via GitHub Actions, static files
-  only, no build step.
+  only, no build step. `index.html` is a redirect stub; the real app is
+  `personal-finance-tracker.html`.
 - **Auth:** Firebase Authentication, Google provider only.
 - **Storage:** One Firestore document (`household/snapshot` — name kept
-  from the household version, harmless to rename once you're refining
-  this) holding the entire app state as JSON.
+  from the household version, harmless to rename if you want to) holding
+  the entire app state as JSON.
 - **Security:** Enforced by `firestore.rules`, not by the app's UI. The
-  sign-in gate in `index.html` only controls what's *displayed* — the
-  rules control what Firestore actually *allows*.
+  sign-in gate only controls what's *displayed* — the rules control what
+  Firestore actually *allows*.
 - **No secrets in git:** The Firebase config values committed in
-  `index.html` are safe to be public (that's how Firebase web apps are
-  designed to work). Your real financial figures are not — they only
-  ever exist in Firestore and in whatever local file you use to seed it.
+  `personal-finance-tracker.html` are safe to be public (that's how
+  Firebase web apps are designed to work). Your real financial figures
+  are not — they only ever exist in Firestore and in whatever local file
+  you use to seed it.
