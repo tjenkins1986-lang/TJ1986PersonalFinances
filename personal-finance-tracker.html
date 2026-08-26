@@ -955,7 +955,7 @@ function divergingBarChart(containerId, months, posSeries, negSeries, opts){
   });
 
   const svg = `
-    <svg viewBox="0 0 ${chartW} ${totalH}" width="100%" style="min-width:${chartW}px" preserveAspectRatio="xMinYMid meet">
+    <svg viewBox="0 0 ${chartW} ${totalH}" width="${chartW}" height="${totalH}">
       <style>
         .chart-lbl{ font-family:'IBM Plex Mono',monospace; font-size:9.5px; fill:var(--text-dim); }
         .chart-lbl-faint{ fill:var(--text-faint); font-style:italic; }
